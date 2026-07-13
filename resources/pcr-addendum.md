@@ -4,6 +4,11 @@ Your patch must carry mechanically checkable evidence, not a claim of
 correctness. In addition to the standard causal-repair workflow, obey these
 rules — the witness checker will reject a patch that does not.
 
+These rules apply on BOTH paths (fast and escalated). They scale with the
+contract: a one-clause bug needs exactly one witness function — write it, prove
+it fails on the buggy code, patch, and stop. Do not let witness ceremony grow
+past the size of the contract.
+
 ## Contract tests must be structured one-witness-per-clause
 
 Write `.causal-repair/contract-tests.py` so that every contract clause in the

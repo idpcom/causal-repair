@@ -213,6 +213,7 @@ def run_claude(
     max_tokens: int,
     timeout: int,
     extra_prompt: Optional[str] = None,
+    effort: Optional[str] = None,
 ) -> Dict[str, object]:
     cmd = [
         claude_bin,
@@ -227,6 +228,8 @@ def run_claude(
         "--max-turns",
         str(max_turns),
     ]
+    if effort:
+        cmd += ["--effort", effort]
     if mode == "harness" and plugin is not None:
         cmd += ["--plugin-dir", str(plugin)]
         # Headless mode does not reliably auto-load the skill body, so inject the
@@ -329,6 +332,7 @@ def execute_run(
             max_tokens=int(cfg.get("max_tokens", 8000)),
             timeout=int(cfg.get("run_timeout_seconds", args.timeout)),
             extra_prompt=cell.get("extra_prompt") if mode == "harness" else None,
+            effort=cell.get("effort", args.effort),
         )
         engine_info = run_claude(repo, prompt, model, **claude_kwargs)
 
@@ -425,6 +429,8 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     p.add_argument("--fake-spec", choices=["good", "workaround", "none"], default="good",
                    help="what the fake engine simulates the model producing")
     p.add_argument("--claude-bin", default=os.environ.get("CLAUDE_BIN", "claude"))
+    p.add_argument("--effort", default=None,
+                   help="claude --effort level (e.g. xhigh); default leaves it unset")
     p.add_argument("--max-turns", type=int, default=40)
     p.add_argument("--timeout", type=int, default=900)
     p.add_argument("--seed", type=int, default=0)

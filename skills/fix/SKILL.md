@@ -7,6 +7,10 @@ description: Short skill alias for Causal Repair. Use to fix failing tests, regr
 
 Use this short skill alias for the same workflow as `causal-repair`.
 
+Default to the fast path: single agent, compact gate artifacts, reasoning
+proportional to the bug. Escalate to the full multi-agent workflow only on
+repeated failure, multi-file contracts, or an unclear causal path.
+
 Request:
 
 ```text

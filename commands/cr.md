@@ -19,6 +19,11 @@ No counterfactual check, no confidence.
 No workaround review, no done.
 ```
 
+Default to the fast path: single agent, no subagent fan-out, compact gate
+artifacts, reasoning proportional to the bug. Escalate to the full multi-agent
+workflow only on repeated failure, multi-file contracts, or an unclear causal
+path.
+
 Required flow:
 
 1. Create a mechanical checkpoint before editing, preferably with `bash scripts/create-checkpoint.sh` when available.

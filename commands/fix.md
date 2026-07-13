@@ -3,7 +3,12 @@ description: Fix a failing test or regression with Causal Repair.
 argument-hint: "[failing test command or bug symptom]"
 ---
 
-Fix this request using the Causal Repair workflow:
+Fix this request using the Causal Repair workflow. Default to the fast path
+(single agent, compact artifacts, reasoning proportional to the bug); escalate
+to the full multi-agent workflow only on repeated failure, multi-file
+contracts, or an unclear causal path.
+
+Request:
 
 ```text
 $ARGUMENTS

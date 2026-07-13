@@ -10,6 +10,15 @@ small or fast models "fix" a failing test: a symptom-only `if` branch, a broad
 fallback, or a patch that quietly drops a documented behavior (for example an
 error contract the visible test never exercises).
 
+The workflow is **adaptive**: every repair produces the evidence artifacts
+(checkpoint, enumerated contract clauses, per-clause contract tests, gate
+file), but by default it runs a lightweight single-agent fast path with
+reasoning proportional to the bug — the multi-agent machinery (investigator
+fan-out, judge, adversarial reviewer, verifier, long-horizon ledger) engages
+only when the fast path fails or the contract genuinely demands it. Easy bugs
+must not pay the full-harness tax; the protection comes from the artifacts,
+not the ceremony.
+
 The plugin gives Claude Code a reusable skill, a small team of specialized
 subagents (evidence, root-cause judgment, workaround review, validation), and
 opt-in hooks that block edits until the evidence exists. The gates demand

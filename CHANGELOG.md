@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.4.3
+
+Field deployments showed the always-on full workflow REGRESSES below baseline
+on task distributions where the bare model already solves most bugs (~70%
+genuine): the multi-agent ceremony adds cost, drift, and non-completion on easy
+bugs while adding no protection value there. Controlled runs confirmed the
+harness only pays off where baselines game, and that heavy deliberation on
+trivial bugs is itself a failure mode.
+
+- Made the workflow adaptive (triage): the FAST PATH is now the default —
+  single agent, no subagent fan-out, compact gate artifacts (checkpoint,
+  enumerated contract clauses, per-clause contract tests, gate file are ALL
+  still mandatory; they are cheap and carry the anti-gaming value), reasoning
+  proportional to the bug.
+- Escalation to the full multi-agent workflow (investigator fan-out, judge,
+  adversarial reviewer, verifier, Ledger-Relay) now requires evidence: two
+  fast-path failures, multi-file/interlocking contracts, an unclear causal
+  path, prior workaround-shaped patches, or an explicit user request.
+- PCR addendum: witnesses scale with the contract (one clause = one witness);
+  witness ceremony must not outgrow the contract.
+- Alias skills/commands updated to state the fast-path default.
+
 ## 0.4.2
 
 - Added Proof-Carrying Repair (v0.4.1): `scripts/verify-witnesses.py` requires one witness test per contract clause that passes on the patch and, on the checkpointed base, fails for broken/at-risk clauses and passes for held ones, plus a mutation-strength check (`scripts/mutate.py`). Catches mislabeled clause status, unimplemented clauses, and vacuous tests.

@@ -34,6 +34,50 @@ Use `$ARGUMENTS` as the user's repair request. It may contain:
 
 If the user gave a test command, run it before editing. If no command is given, inspect the project for the most relevant test or reproduction path.
 
+## Two paths: fast by default, escalate on evidence
+
+The anti-workaround protection comes from the ARTIFACTS (checkpoint, contract
+clauses, per-clause contract tests, gate file) — not from ceremony. Produce the
+artifacts on every repair, but spend orchestration only where the bug earns it.
+
+**FAST PATH (default for every repair).** Work single-agent. No investigator
+fan-out, no judge/reviewer/verifier subagents, no dynamic workflow:
+
+1. Checkpoint (`bash scripts/create-checkpoint.sh` or the manual equivalent).
+2. Reproduce the failure once and read the docstring/spec of the code under
+   repair. Enumerate ALL documented contract clauses — this is the step that
+   prevents symptom-only fixes and it is cheap. Do not skip it because the bug
+   looks trivial.
+3. Write a compact `.causal-repair/rca-gate.json` directly (all required
+   fields; for a short, obvious causal path the counterfactual may be recorded
+   as `result: incomplete` with one sentence of justification).
+4. Write `.causal-repair/contract-tests.py` (one witness per clause, negative
+   case per error contract) and confirm the broken-clause witnesses FAIL on the
+   current buggy code.
+5. Patch minimally against the contract. Run the visible test + contract
+   tests. Create the patch manifest. Self-review the diff against the
+   workaround reject rules (no subagent).
+
+Keep reasoning proportional to the bug: for a one-clause, single-file fix, do
+not deliberate at length or re-investigate settled questions — enumerate,
+test, patch, verify, stop. Deep analysis on a trivial bug is itself a failure
+mode (it increases non-completion without improving the fix).
+
+**ESCALATE to the full workflow below** only when at least one holds:
+
+- the fast path failed twice (visible or contract tests still failing, or a
+  witness cannot be made to hold honestly)
+- the contract spans multiple files/modules, or more than ~4 interlocking
+  clauses
+- the causal path is still unclear after the first reproduction
+- prior patches in this repo already added workaround-shaped logic
+- the user explicitly asks for the full/multi-agent workflow
+
+Escalation adds: diverse investigator fan-out, the root-cause judge, executed
+counterfactuals, the adversarial workaround-reviewer and repair-verifier
+subagents, and the Ledger-Relay protocol for long-horizon repairs. De-escalate
+back to the fast path when the blocking question is resolved.
+
 ## Required workflow
 
 ### 0. Create a mechanical checkpoint
