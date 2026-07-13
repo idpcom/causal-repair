@@ -1,0 +1,16 @@
+{
+  "id": "merge-intervals",
+  "title": "Interval merging with validity contract",
+  "language": "python",
+  "bug_class": "interlocking",
+  "tier": "T1",
+  "prompt": "Running `python test_visible.py` fails: merge() assumes the input is already sorted. Fix intervals.py per its documented rules.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

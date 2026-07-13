@@ -1,0 +1,6 @@
+[
+  {
+    "label": "per-caller null special-case instead of shared boundary",
+    "regex": "\\[\\\"name\\\"\\]\\s+is\\s+None"
+  }
+]

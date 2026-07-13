@@ -1,0 +1,10 @@
+{
+  "id": "mutable-default-bucket",
+  "title": "Mutable default argument state leak",
+  "language": "python",
+  "entry_module": "accumulator",
+  "prompt": "Running `python test_visible.py` fails: collect() remembers items across separate calls. Fix accumulator.py so a call with no bucket starts fresh, while a caller-supplied bucket still accumulates.",
+  "visible_test_cmd": ["python", "test_visible.py"],
+  "heldout_test_cmd": ["python", "test_heldout.py"],
+  "bug_class": "state-leak"
+}

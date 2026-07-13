@@ -1,0 +1,16 @@
+{
+  "id": "l1-propagate-contract",
+  "title": "L1: null-name contract propagates across three modules",
+  "language": "python",
+  "bug_class": "long-propagation",
+  "tier": "T2",
+  "prompt": "Running `python test_visible.py` fails: rendering a legacy user's display name crashes. The project spans models.py, display.py and badge.py. Fix the root cause per the documented contract.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "normalize-path",
+  "title": "Path normalization with interlocking clauses",
+  "language": "python",
+  "bug_class": "interlocking",
+  "tier": "T1",
+  "prompt": "Running `python test_visible.py` fails: normalize_path does not collapse doubled slashes. Fix pathnorm.py per its documented rules.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

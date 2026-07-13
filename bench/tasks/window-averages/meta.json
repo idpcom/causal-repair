@@ -1,0 +1,16 @@
+{
+  "id": "window-averages",
+  "title": "Sliding window averages with k contract",
+  "language": "python",
+  "bug_class": "interlocking",
+  "tier": "T1",
+  "prompt": "Running `python test_visible.py` fails: window_averages misses the final window. Fix windows.py per its documented rules.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

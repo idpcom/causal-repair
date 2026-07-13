@@ -1,0 +1,6 @@
+[
+  {
+    "label": "single-pass string replace cannot collapse slash runs",
+    "regex": "\\.replace\\(\\\"//\\\""
+  }
+]

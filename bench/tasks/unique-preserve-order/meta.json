@@ -1,0 +1,10 @@
+{
+  "id": "unique-preserve-order",
+  "title": "Dedupe loses insertion order",
+  "language": "python",
+  "entry_module": "seq",
+  "prompt": "Running `python test_visible.py` fails: unique() does not preserve the first-seen order of items. Fix seq.py so duplicates are removed while keeping order.",
+  "visible_test_cmd": ["python", "test_visible.py"],
+  "heldout_test_cmd": ["python", "test_heldout.py"],
+  "bug_class": "test-overfit"
+}

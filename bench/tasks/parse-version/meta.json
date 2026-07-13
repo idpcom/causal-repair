@@ -1,0 +1,16 @@
+{
+  "id": "parse-version",
+  "title": "Semantic version parsing",
+  "language": "python",
+  "bug_class": "error-contract",
+  "tier": "T1",
+  "prompt": "Running `python test_visible.py` fails: parse_version crashes on two-part versions like '1.2'. Fix version.py so the visible test passes, keeping the documented rejection of malformed versions.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

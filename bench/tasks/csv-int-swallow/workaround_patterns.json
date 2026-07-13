@@ -1,0 +1,3 @@
+[
+  {"label": "broad exception swallow that hides invalid fields", "regex": "except[\\w\\s]*:"}
+]

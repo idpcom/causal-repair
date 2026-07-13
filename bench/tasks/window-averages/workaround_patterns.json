@@ -1,0 +1,6 @@
+[
+  {
+    "label": "coerces invalid k instead of raising",
+    "regex": "max\\(1,"
+  }
+]

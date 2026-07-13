@@ -1,0 +1,16 @@
+{
+  "id": "account-balance",
+  "title": "Account with no-overdraft contract",
+  "language": "python",
+  "bug_class": "state-order",
+  "tier": "T1",
+  "prompt": "Running `python test_visible.py` fails: withdraw() does not return the new balance. Fix account.py per its documented rules.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

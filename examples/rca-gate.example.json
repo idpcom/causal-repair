@@ -1,0 +1,42 @@
+{
+  "failure_evidence": "Command `python _fixture_runner.py` fails because get_display_name('legacy') raises AttributeError when name is None.",
+  "causal_path": "test_legacy_null_name_uses_anonymous -> get_display_name('legacy') -> PROFILES['legacy']['name'] -> None.strip()",
+  "broken_behavior": "Legacy profiles with null names are not normalized into a display name.",
+  "contract_invariant_status": "inferred",
+  "contract_clauses": [
+    {
+      "clause": "Valid display names are returned stripped of surrounding whitespace.",
+      "status": "held",
+      "covered_by": "python -m pytest test_profile.py"
+    },
+    {
+      "clause": "Blank or null display names normalize to 'Anonymous'.",
+      "status": "broken",
+      "covered_by": "python .causal-repair/contract-tests.py"
+    },
+    {
+      "clause": "Missing user ids still raise KeyError (lookup semantics unchanged).",
+      "status": "at-risk",
+      "covered_by": "python .causal-repair/contract-tests.py"
+    }
+  ],
+  "root_cause_location": "profile.py:get_display_name",
+  "cause_not_symptom": "The failure is caused by every display-name caller using raw profile['name'].strip() instead of a normalization boundary. The null value is valid legacy data, not an exceptional missing user.",
+  "counterfactual_check": {
+    "command": "python _fixture_runner.py after probing missing-user behavior",
+    "result": "pass",
+    "evidence": "A probe confirms missing users still raise KeyError, while legacy user lookup reaches profile['name'] before failing. Normalizing only display-name values should fix legacy without changing missing-user behavior."
+  },
+  "minimal_patch_shape": "Introduce normalize_display_name(name) and call it from get_display_name without changing missing-user lookup semantics.",
+  "workaround_reject_rules": [
+    "Do not return a fixture-specific value for user_id == 'legacy'.",
+    "Do not return an empty string for all nulls unless the display-name contract says blank is valid.",
+    "Do not catch KeyError for missing users."
+  ],
+  "tests_to_run": [
+    "python _fixture_runner.py",
+    "python .causal-repair/contract-tests.py",
+    "python -m pytest test_profile.py"
+  ],
+  "checkpoint": ".causal-repair/checkpoints/<timestamp>-<base-commit>"
+}

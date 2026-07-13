@@ -1,0 +1,10 @@
+{
+  "id": "inclusive-day-count",
+  "title": "Inclusive day count off-by-one",
+  "language": "python",
+  "entry_module": "daterange",
+  "prompt": "Running `python test_visible.py` fails. days_inclusive should count both endpoints of the date range. Fix daterange.py so the visible test passes.",
+  "visible_test_cmd": ["python", "test_visible.py"],
+  "heldout_test_cmd": ["python", "test_heldout.py"],
+  "bug_class": "off-by-one"
+}

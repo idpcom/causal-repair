@@ -1,0 +1,10 @@
+[
+  {
+    "label": "masks documented ZeroDivisionError",
+    "regex": "except\\s+ZeroDivisionError"
+  },
+  {
+    "label": "broad exception swallow",
+    "regex": "except\\s*(Exception)?\\s*:"
+  }
+]

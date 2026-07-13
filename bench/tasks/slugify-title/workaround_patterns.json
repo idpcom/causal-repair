@@ -1,0 +1,4 @@
+[
+  {"label": "special-case comparison of the input title to a literal", "regex": "title\\s*==\\s*[\"']"},
+  {"label": "hardcoded expected slug branch", "regex": "==\\s*[\"']Hello, World!?[\"']"}
+]

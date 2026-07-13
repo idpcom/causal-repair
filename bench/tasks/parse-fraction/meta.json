@@ -1,0 +1,16 @@
+{
+  "id": "parse-fraction",
+  "title": "Fraction parsing with propagated division error",
+  "language": "python",
+  "bug_class": "error-contract",
+  "tier": "T1",
+  "prompt": "Running `python test_visible.py` fails: parse_fraction crashes on whole numbers like '3'. Fix fraction.py so the visible test passes, honoring the documented error behavior.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "case-insensitive-setting",
+  "title": "Setting lookup is case-sensitive",
+  "language": "python",
+  "entry_module": "settings",
+  "prompt": "Running `python test_visible.py` fails: get_setting() only matches the exact key case. Fix settings.py so lookup is case-insensitive, while a truly missing key still raises KeyError.",
+  "visible_test_cmd": ["python", "test_visible.py"],
+  "heldout_test_cmd": ["python", "test_heldout.py"],
+  "bug_class": "normalization"
+}

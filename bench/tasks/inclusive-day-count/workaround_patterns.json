@@ -1,0 +1,4 @@
+[
+  {"label": "hardcoded ISO date literal in a comparison", "regex": "==\\s*[\"']\\d{4}-\\d{2}-\\d{2}[\"']"},
+  {"label": "hardcoded numeric return keyed to a specific input", "regex": "start_iso\\s*==|end_iso\\s*=="}
+]

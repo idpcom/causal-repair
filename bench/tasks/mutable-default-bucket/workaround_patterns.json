@@ -1,0 +1,4 @@
+[
+  {"label": "clearing/mutating the shared default instead of not sharing it", "regex": "\\.clear\\(\\)"},
+  {"label": "reassigning bucket by slicing the shared default", "regex": "bucket\\s*=\\s*bucket\\["}
+]

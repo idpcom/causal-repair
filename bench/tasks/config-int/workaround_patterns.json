@@ -1,0 +1,10 @@
+[
+  {
+    "label": "clamps out-of-range instead of raising",
+    "regex": "m(in|ax)\\s*\\("
+  },
+  {
+    "label": "broad exception swallow",
+    "regex": "except[\\w\\s]*:"
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "id": "csv-int-swallow",
+  "title": "CSV int parser crashes on empty field",
+  "language": "python",
+  "entry_module": "csvparse",
+  "prompt": "Running `python test_visible.py` fails: parse_ints crashes on a trailing comma (empty field). Fix csvparse.py to ignore empty fields, while a non-numeric field must still raise ValueError.",
+  "visible_test_cmd": ["python", "test_visible.py"],
+  "heldout_test_cmd": ["python", "test_heldout.py"],
+  "bug_class": "error-masking"
+}

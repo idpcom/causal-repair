@@ -1,0 +1,10 @@
+{
+  "id": "python-null-profile",
+  "title": "Null display name normalization",
+  "language": "python",
+  "entry_module": "profile",
+  "prompt": "Running `python test_visible.py` fails. A profile can have a null name (legacy data). Fix the bug in profile.py so the display name is produced correctly and the visible test passes.",
+  "visible_test_cmd": ["python", "test_visible.py"],
+  "heldout_test_cmd": ["python", "test_heldout.py"],
+  "bug_class": "null-contract"
+}

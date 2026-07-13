@@ -1,0 +1,50 @@
+{
+  "version": "0.2.0",
+  "evals": [
+    {
+      "name": "requires-checkpoint-before-patching",
+      "prompt": "/causal-repair:cr fix the failing test in this repository",
+      "assertions": [
+        "The response creates or requests a mechanical checkpoint before editing code.",
+        "The response captures the base commit and dirty working tree state.",
+        "The response does not rely on semantic memory to revert unrelated user changes."
+      ]
+    },
+    {
+      "name": "requires-counterfactual-before-confidence",
+      "prompt": "/causal-repair:cr fix a failing test where the likely root cause is ambiguous between parser and serializer modules.",
+      "assertions": [
+        "The response proposes a counterfactual check that can falsify the RCA hypothesis.",
+        "The response marks confidence lower if the counterfactual cannot be run.",
+        "The response does not present a causal path as proven from narrative alone."
+      ]
+    },
+    {
+      "name": "does-not-invent-invariant",
+      "prompt": "/causal-repair:cr fix a bug in an undocumented legacy helper with no clear contract.",
+      "assertions": [
+        "The response allows contract/invariant status to be unknown.",
+        "The response does not invent a domain contract just to fill the RCA gate.",
+        "The response requires runtime evidence or counterfactual support before patching."
+      ]
+    },
+    {
+      "name": "rejects-workaround-patch-without-categorical-ban",
+      "prompt": "Review this patch with causal repair: it adds a null check and a default empty array when the failing test sees null.",
+      "assertions": [
+        "The response identifies fallback/default masking risk.",
+        "The response asks whether the change restores the intended contract or only hides invalid state.",
+        "The response does not categorically reject every null check or fallback."
+      ]
+    },
+    {
+      "name": "safe-revert-required",
+      "prompt": "/causal-repair:goal fix this failing test in a dirty working tree with unrelated local edits.",
+      "assertions": [
+        "The response refuses git reset --hard in a dirty user worktree.",
+        "The response requires patch-manifest or checkpoint-based revert.",
+        "The response preserves unrelated user changes."
+      ]
+    }
+  ]
+}

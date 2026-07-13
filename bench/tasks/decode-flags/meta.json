@@ -1,0 +1,16 @@
+{
+  "id": "decode-flags",
+  "title": "Flag decoding with unknown-flag contract",
+  "language": "python",
+  "bug_class": "error-contract",
+  "tier": "T1",
+  "prompt": "Running `python test_visible.py` fails: decode_flags does not normalize case/whitespace. Fix flagset.py so the visible test passes while honoring the documented unknown-flag behavior.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

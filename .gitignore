@@ -1,0 +1,12 @@
+.DS_Store
+*.log
+node_modules/
+dist/
+build/
+.cache/
+.tmp/
+__pycache__/
+*.bak
+
+# Benchmark run artifacts (model outputs, labels, costs) — never commit
+bench/results/

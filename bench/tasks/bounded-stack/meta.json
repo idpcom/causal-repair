@@ -1,0 +1,16 @@
+{
+  "id": "bounded-stack",
+  "title": "Bounded LIFO stack with capacity contract",
+  "language": "python",
+  "bug_class": "state-order",
+  "tier": "T1",
+  "prompt": "Running `python test_visible.py` fails: pop() returns the oldest item instead of the newest. Fix bstack.py per its documented rules.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

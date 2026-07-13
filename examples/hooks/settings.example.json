@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:/Users/YOUR_USER/.claude/skills/causal-repair/scripts/hooks/pre-tool-use.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:/Users/YOUR_USER/.claude/skills/causal-repair/scripts/hooks/pre-tool-use.py"
+          }
+        ]
+      }
+    ]
+  }
+}

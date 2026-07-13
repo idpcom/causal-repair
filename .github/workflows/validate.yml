@@ -1,0 +1,58 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate structure
+        run: bash scripts/validate-structure.sh
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -p 'test_*.py'
+
+      - name: Smoke test checkpoint script
+        run: |
+          checkpoint_dir="$(bash scripts/create-checkpoint.sh)"
+          test -f "$checkpoint_dir/base-commit.txt"
+          test -f "$checkpoint_dir/status-short.txt"
+          test -f "$checkpoint_dir/pre-existing.diff"
+          test -f "$checkpoint_dir/pre-existing-staged.diff"
+          test -f "$checkpoint_dir/pre-existing-untracked.zlist"
+
+      - name: Smoke test counterfactual runner
+        run: |
+          mkdir -p .causal-repair
+          checkpoint_dir="$(bash scripts/create-checkpoint.sh)"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          gate = json.loads(Path('examples/rca-gate.example.json').read_text())
+          gate['checkpoint'] = Path('.causal-repair/checkpoints').glob('*').__next__().as_posix()
+          gate['counterfactual_check'] = {
+              'command': 'python -c "print(123)"',
+              'result': 'pass',
+              'evidence': 'CI smoke test confirms the command exits 0.'
+          }
+          Path('.causal-repair/rca-gate.json').write_text(json.dumps(gate))
+          PY
+          python scripts/validate-rca-gate.py .causal-repair/rca-gate.json
+          python scripts/run-counterfactual.py .causal-repair/rca-gate.json --timeout 30
+
+      - name: Evaluate executable fixtures
+        run: python scripts/evaluate-fixtures.py
+
+      - name: Smoke test model profile dry-runs
+        run: |
+          python scripts/set-agent-models.py --list-profiles
+          python scripts/set-agent-models.py --profile qwen-mimo --dry-run
+          python scripts/set-agent-models.py --all qwen3-coder-plus --dry-run
+          ! python scripts/set-agent-models.py --profile qwen-mimo --all haiku --dry-run

@@ -1,0 +1,16 @@
+{
+  "id": "config-int",
+  "title": "Config integer with range contract",
+  "language": "python",
+  "bug_class": "error-contract",
+  "tier": "T1",
+  "prompt": "Running `python test_visible.py` fails: get_int does not accept hex strings like '0x10'. Fix config.py so the visible test passes while keeping the documented range/rejection behavior.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

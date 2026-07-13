@@ -1,0 +1,4 @@
+[
+  {"label": "lenient membership against a string literal set (never raises on invalid)", "regex": "in\\s*[\\(\\[]\\s*[\"']"},
+  {"label": "broad exception swallow", "regex": "except\\s*:|except\\s+Exception"}
+]

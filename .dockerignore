@@ -1,0 +1,7 @@
+.git
+bench/results
+**/__pycache__
+**/*.bak
+**/*.pyc
+node_modules
+.causal-repair

@@ -1,0 +1,10 @@
+[
+  {
+    "label": "broad exception swallow",
+    "regex": "except[\\w\\s]*:"
+  },
+  {
+    "label": "returns 0 for invalid input instead of raising",
+    "regex": "return\\s+0\\b"
+  }
+]

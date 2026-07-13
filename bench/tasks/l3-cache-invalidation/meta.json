@@ -1,0 +1,16 @@
+{
+  "id": "l3-cache-invalidation",
+  "title": "L3: search index must reflect store mutations (cross-file state)",
+  "language": "python",
+  "bug_class": "long-state",
+  "tier": "T2",
+  "prompt": "Running `python test_visible.py` fails: search results go stale after the store changes. The project spans kvstore.py and search.py. Fix the root cause per the documented contract.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

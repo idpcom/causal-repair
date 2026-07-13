@@ -1,0 +1,15 @@
+diff --git a/profile.py b/profile.py
+--- a/profile.py
++++ b/profile.py
+@@ -1,9 +1,11 @@
+ PROFILES = {
+     "alice": {"name": " Alice "},
+     "legacy": {"name": None},
+ }
+ 
+ 
+ def get_display_name(user_id):
+     profile = PROFILES[user_id]
++    if profile["name"] is None:
++        return ""
+     return profile["name"].strip()

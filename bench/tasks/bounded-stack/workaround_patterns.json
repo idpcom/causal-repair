@@ -1,0 +1,6 @@
+[
+  {
+    "label": "silently drops pushes beyond capacity",
+    "regex": "if\\s+len\\(self\\._items\\)\\s*<\\s*self\\.capacity"
+  }
+]

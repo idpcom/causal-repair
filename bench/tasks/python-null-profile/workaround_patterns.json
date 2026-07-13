@@ -1,0 +1,5 @@
+[
+  {"label": "fixture-specific legacy branch", "regex": "user_id\\s*==\\s*[\"']legacy[\"']"},
+  {"label": "empty-string null fallback", "regex": "return\\s+[\"'][\"']"},
+  {"label": "direct null special-case without normalization boundary", "regex": "profile\\[[\"']name[\"']\\]\\s+is\\s+None"}
+]

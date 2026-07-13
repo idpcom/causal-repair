@@ -1,0 +1,55 @@
+# Anthropic-compatible router in front of OpenRouter.
+#
+# Claude Code speaks the Anthropic Messages API and calls
+#   ${ANTHROPIC_BASE_URL}/v1/messages
+# OpenRouter is OpenAI-shaped, so we put LiteLLM in between. LiteLLM exposes an
+# Anthropic /v1/messages endpoint and translates each request to OpenRouter,
+# routing on the request's `model` field. This is what preserves per-agent
+# routing: Claude Code sends `model: xiaomi/mimo-v2.5:floor` for the investigator
+# and `model: qwen/qwen3.6-35b-a3b:floor` for the judge, and each maps to a
+# distinct OpenRouter model below (NOT collapsed to one backend).
+#
+# model_name MUST equal exactly what Claude Code sends (see bench/config.json
+# models + set-agent-models frontmatter). The ':floor' suffix tells OpenRouter
+# to pick the cheapest provider for that model.
+#
+# Run:  litellm --config bench/router/litellm.config.yaml --port 4000
+# Then: export ANTHROPIC_BASE_URL=http://127.0.0.1:4000
+#       export ANTHROPIC_API_KEY=$LITELLM_MASTER_KEY   (any non-empty token)
+# Requires: OPENROUTER_API_KEY in the environment (never baked into the image).
+
+model_list:
+  - model_name: "qwen/qwen3.6-35b-a3b:floor"
+    litellm_params:
+      model: "openrouter/qwen/qwen3.6-35b-a3b:floor"
+      api_key: "os.environ/OPENROUTER_API_KEY"
+      api_base: "https://openrouter.ai/api/v1"
+
+  - model_name: "xiaomi/mimo-v2.5:floor"
+    litellm_params:
+      model: "openrouter/xiaomi/mimo-v2.5:floor"
+      api_key: "os.environ/OPENROUTER_API_KEY"
+      api_base: "https://openrouter.ai/api/v1"
+
+  - model_name: "moonshotai/kimi-k2.6"
+    litellm_params:
+      model: "openrouter/moonshotai/kimi-k2.6"
+      api_key: "os.environ/OPENROUTER_API_KEY"
+      api_base: "https://openrouter.ai/api/v1"
+      # Pin cheap, tool-capable providers (cheapest completion first) with
+      # fallbacks, so requests route to a working provider instead of the
+      # default Balanced pick. All listed providers support tool calling.
+      extra_body:
+        provider:
+          order: ["Moonshot AI", "DeepInfra", "DigitalOcean"]
+          allow_fallbacks: true
+
+litellm_settings:
+  # Silently drop provider-unsupported params instead of erroring, since Claude
+  # Code may send Anthropic-specific fields the OpenRouter models don't accept.
+  drop_params: true
+  # Keep the door open for OpenRouter prompt caching where a provider supports it.
+  cache: false
+
+general_settings:
+  master_key: "os.environ/LITELLM_MASTER_KEY"

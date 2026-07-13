@@ -1,0 +1,16 @@
+{
+  "id": "l2-dependent-chain",
+  "title": "L2: parser fix invalidates stats compensation (dependent chain)",
+  "language": "python",
+  "bug_class": "long-chain",
+  "tier": "T2",
+  "prompt": "Running `python test_visible.py` fails: record counting is wrong for some inputs. The project spans records.py and stats.py, whose behaviors are coupled by contract. Fix the root cause.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

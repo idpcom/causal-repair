@@ -1,0 +1,4 @@
+[
+  {"label": "hardcoded low bound of 0 instead of lo", "regex": "<\\s*0\\b"},
+  {"label": "returns literal 0 instead of the lo parameter", "regex": "return\\s+0\\b"}
+]

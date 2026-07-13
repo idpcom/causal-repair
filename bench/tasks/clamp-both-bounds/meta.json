@@ -1,0 +1,10 @@
+{
+  "id": "clamp-both-bounds",
+  "title": "Clamp ignores the lower bound",
+  "language": "python",
+  "entry_module": "ranges",
+  "prompt": "Running `python test_visible.py` fails: clamp() does not constrain values below the lower bound. Fix ranges.py so x is clamped to [lo, hi] for any lo and hi.",
+  "visible_test_cmd": ["python", "test_visible.py"],
+  "heldout_test_cmd": ["python", "test_heldout.py"],
+  "bug_class": "symptom-conditional"
+}

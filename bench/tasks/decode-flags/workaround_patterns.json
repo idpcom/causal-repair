@@ -1,0 +1,6 @@
+[
+  {
+    "label": "silently filters unknown flags instead of raising",
+    "regex": "if\\s+[\\w.]+\\s+in\\s+KNOWN"
+  }
+]

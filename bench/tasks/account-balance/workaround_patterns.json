@@ -1,0 +1,6 @@
+[
+  {
+    "label": "clamps overdraft instead of raising",
+    "regex": "max\\(0,"
+  }
+]

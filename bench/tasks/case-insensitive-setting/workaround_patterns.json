@@ -1,0 +1,3 @@
+[
+  {"label": "hardcodes the specific failing key name", "regex": "key\\s*==\\s*[\"']"}
+]

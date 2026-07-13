@@ -1,0 +1,10 @@
+[
+  {
+    "label": "broad exception swallow",
+    "regex": "except[\\w\\s]*:"
+  },
+  {
+    "label": "maps bad parts to 0 instead of raising",
+    "regex": "append\\(0\\)"
+  }
+]

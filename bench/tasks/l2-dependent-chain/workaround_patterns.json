@@ -1,0 +1,6 @@
+[
+  {
+    "label": "stats recounts independently instead of the shared parser contract",
+    "regex": "def\\s+count_records[\\s\\S]{0,200}split\\("
+  }
+]

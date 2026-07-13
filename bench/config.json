@@ -1,0 +1,102 @@
+{
+  "_comment": "Single source of truth for the causal-repair benchmark. Model ids are OpenRouter ids verified live 2026-07. The ':floor' suffix asks OpenRouter to route to the cheapest provider for that model. Set reps and max_tokens to trade cost vs statistical confidence.",
+
+  "models": {
+    "qwen":  "qwen/qwen3.6-35b-a3b:floor",
+    "mimo":  "xiaomi/mimo-v2.5:floor",
+    "kimi":  "moonshotai/kimi-k2.6"
+  },
+
+  "_prices_comment": "OpenRouter USD per 1M tokens (verified 2026-07). Used for real cost, since Claude Code's reported total_cost_usd misprices non-Anthropic models routed via the proxy.",
+  "prices": {
+    "qwen": {"in": 0.14,  "out": 1.00},
+    "mimo": {"in": 0.105, "out": 0.28},
+    "kimi": {"in": 0.72,  "out": 3.50}
+  },
+
+  "reps": 3,
+  "max_tokens": 8000,
+  "run_timeout_seconds": 900,
+
+  "cells": {
+    "C1-qwen-baseline": {
+      "mode": "baseline",
+      "model": "qwen",
+      "role": "small-model baseline"
+    },
+    "C2-mimo-baseline": {
+      "mode": "baseline",
+      "model": "mimo",
+      "role": "small-model baseline"
+    },
+    "C3-kimi-baseline": {
+      "mode": "baseline",
+      "model": "kimi",
+      "role": "reference bar (target to reach)"
+    },
+    "C4-qwen-mimo-harness": {
+      "mode": "harness",
+      "model": "qwen",
+      "role": "treatment: causal-repair harness on Qwen+MiMo only (v0.3 workflow, measured 2026-07-12)",
+      "agent_models": {
+        "investigator": "mimo",
+        "judge": "qwen",
+        "reviewer": "mimo",
+        "verifier": "mimo"
+      },
+      "hooks": true
+    },
+    "C5-harness-v2": {
+      "mode": "harness",
+      "model": "qwen",
+      "role": "treatment: Ledger-Relay v0.4.0 harness on Qwen+MiMo (contract-completeness gate)",
+      "agent_models": {
+        "investigator": "mimo",
+        "judge": "qwen",
+        "reviewer": "mimo",
+        "verifier": "mimo"
+      },
+      "hooks": true
+    },
+    "C6-prompt-only": {
+      "mode": "harness",
+      "model": "qwen",
+      "role": "ablation (H5): identical v0.4.0 skill text + scripts, but NO hook enforcement — isolates mechanical enforcement as the causal ingredient",
+      "agent_models": {
+        "investigator": "mimo",
+        "judge": "qwen",
+        "reviewer": "mimo",
+        "verifier": "mimo"
+      },
+      "hooks": false
+    },
+    "C7-pcr": {
+      "mode": "harness",
+      "model": "qwen",
+      "role": "treatment v0.4.1 (Proof-Carrying Repair): C5 + per-clause witness gate (contract tests must fail on base and kill mutants). extra_prompt is the only difference from C5, isolating PCR.",
+      "agent_models": {
+        "investigator": "mimo",
+        "judge": "qwen",
+        "reviewer": "mimo",
+        "verifier": "mimo"
+      },
+      "hooks": true,
+      "extra_prompt": "resources/pcr-addendum.md"
+    },
+    "C8-pcr-loop": {
+      "mode": "harness",
+      "model": "qwen",
+      "role": "treatment v0.4.2: C7 + runner-enforced gates (CI-style outer loop: verify-witnesses + change-surface coverage run by the RUNNER; on failure the model is re-invoked once with the gate output). Diffs from C7: witness_retries + coverage_gate.",
+      "agent_models": {
+        "investigator": "mimo",
+        "judge": "qwen",
+        "reviewer": "mimo",
+        "verifier": "mimo"
+      },
+      "hooks": true,
+      "extra_prompt": "resources/pcr-addendum.md",
+      "witness_retries": 1,
+      "coverage_gate": true
+    }
+  }
+}

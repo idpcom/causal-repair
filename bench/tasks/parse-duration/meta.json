@@ -1,0 +1,16 @@
+{
+  "id": "parse-duration",
+  "title": "Duration string parsing with unit suffixes",
+  "language": "python",
+  "bug_class": "error-contract",
+  "tier": "T1",
+  "prompt": "Running `python test_visible.py` fails: parse_duration does not accept unit suffixes like '30s'. Fix duration.py so the visible test passes. Invalid input must still be rejected as documented.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

@@ -1,0 +1,6 @@
+[
+  {
+    "label": "append-only index sync never forgets deletions",
+    "regex": "not\\s+in\\s+_INDEX"
+  }
+]

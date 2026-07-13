@@ -1,0 +1,20 @@
+{
+  "name": "causal-repair",
+  "description": "Root-cause-first repair harness for Claude Code that makes small, self-hostable models fix bugs like a frontier model. Patches must carry machine-checked evidence they restore the documented contract (enumerated contract clauses, authored tests that fail on the bug and survive mutation, change-surface coverage), not just pass the visible test.",
+  "version": "0.4.2",
+  "author": {
+    "name": "idpcom"
+  },
+  "repository": "https://github.com/idpcom/causal-repair",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "skill",
+    "hooks",
+    "root-cause-analysis",
+    "code-repair",
+    "testing",
+    "debugging"
+  ]
+}

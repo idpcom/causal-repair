@@ -1,0 +1,4 @@
+[
+  {"label": "special-cases the exact test input list", "regex": "items\\s*==\\s*\\["},
+  {"label": "returns the hardcoded expected list literal", "regex": "return\\s*\\[\\s*3\\s*,\\s*1\\s*,\\s*2\\s*\\]"}
+]

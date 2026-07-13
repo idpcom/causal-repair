@@ -1,0 +1,6 @@
+[
+  {
+    "label": "silently drops invalid intervals",
+    "regex": "if\\s+\\w+\\s*<=\\s*\\w+\\s*(\\]|$)"
+  }
+]

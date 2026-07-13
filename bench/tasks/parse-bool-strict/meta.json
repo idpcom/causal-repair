@@ -1,0 +1,10 @@
+{
+  "id": "parse-bool-strict",
+  "title": "Strict boolean flag parsing",
+  "language": "python",
+  "entry_module": "flags",
+  "prompt": "Running `python test_visible.py` fails: parse_bool does not accept '1'/'0' (and other truthy/falsey spellings). Fix flags.py so the visible test passes. Invalid input must still be rejected.",
+  "visible_test_cmd": ["python", "test_visible.py"],
+  "heldout_test_cmd": ["python", "test_heldout.py"],
+  "bug_class": "error-masking"
+}
