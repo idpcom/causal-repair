@@ -97,6 +97,13 @@
       "extra_prompt": "resources/pcr-addendum.md",
       "witness_retries": 1,
       "coverage_gate": true
+    },
+    "C9-qwen-retry": {
+      "mode": "baseline",
+      "model": "qwen",
+      "role": "confound control: plain Qwen baseline + an equal-budget outer retry loop that re-invokes on VISIBLE-test failure (no plugin, no gate). Isolates 'is the harness gain just retrying?' A gamed patch passes the visible test, so this loop cannot fix gaming.",
+      "retry_on": "visible",
+      "witness_retries": 1
     }
   }
 }

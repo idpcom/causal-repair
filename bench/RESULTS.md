@@ -1,247 +1,132 @@
-# Benchmark results & findings
+# Benchmark results
 
-Goal: in a closed intranet where large hosted LLMs are unavailable, can the
+Question: in a closed intranet where large hosted LLMs are unavailable, can the
 causal-repair harness lift low-weight self-hostable models (Qwen3.6-35B-A3B +
 MiMo-V2.5) to the bug-fixing quality of an unharnessed Kimi K2.6?
 
-All runs: OpenRouter behind a LiteLLM (Anthropic-compatible) router in the
-Docker sandbox. Raw per-run data: `bench/results/matrix.jsonl` (gitignored).
-Protocol pre-registered in `bench/PREREG.md` (committed before screening).
+Setup: all runs go through OpenRouter behind a LiteLLM (Anthropic-compatible)
+router in the Docker sandbox. Raw per-run data is in `bench/results/matrix.jsonl`
+(gitignored). Protocol and task-adoption rule were pre-registered in
+`bench/PREREG.md` before any measurement.
 
-## Summary
+**Metric — genuine-fix**: the patch passes the visible test AND a hidden
+held-out contract test AND matches no task-specific workaround pattern.
+**gamed** = passes the visible test but violates the contract (`bench/score.py`).
 
-On a pre-registered set of 6 short tasks where the small-model baselines game
-(pass the visible test but violate a documented contract), the harness lifts
-Qwen+MiMo from a 15% Qwen baseline to **67% genuine-fix**, **statistically
-indistinguishable from the 71% unharnessed Kimi K2.6 reference** (difference
-−5 pts, task-cluster bootstrap 95% CI [−17, +6] includes 0). Two results carry
-the story:
+**Cells** (Qwen+MiMo harness routing throughout; Qwen authors patches/judges,
+MiMo investigates/reviews/verifies):
 
-- **Enforcement, not guidance, is the active ingredient.** The identical
-  workflow delivered prompt-only (no hook) scores 33% ≈ baseline; adding hook
-  enforcement adds +33 pts (Fisher p = 0.047).
-- **A blocking-only "minimal patch" process made small models *worse*** — it
-  gamed 3/3 on a task the baseline solved half the time, because "minimal vs
-  the visible test" suppresses the contract-completeness fix. The remedy is a
-  gate that *demands machine-checkable artifacts* (enumerated contract clauses +
-  authored contract tests that must fail on the base code and survive mutation
-  testing), culminating in Proof-Carrying Repair (v0.4.1).
-
-This is a small-n MVP pilot (n = 13–21/cell). Significance holds for harness-vs-
-Qwen-baseline (p = 0.006) and vs prompt-only (p = 0.047); the v0.4.1-over-v0.4.0
-step is directional (p = 0.28). Full caveats below.
-
-Metric: **genuine-fix** = the model's patch passes the visible test AND a hidden
-held-out contract test AND matches no task-specific workaround regex.
-**gamed** = passes the visible test but fails held-out or matches a workaround
-pattern (`bench/score.py`).
-
----
-
-## MVP pilot campaign (2026-07-12, pre-registered, total spend ≈ $5.7)
-
-### Screening (pre-registered rule: adopt iff baseline genuine ≤ 50%)
-
-10 new T1 tasks × {Qwen, MiMo} × 2 reps. **Adopted 5/10**: config-int (2/4),
-normalize-path (1/4), window-averages (0/4), account-balance (0/4),
-bounded-stack (0/4) — three tasks where small baselines game 4/4.
-Non-discriminating (appendix): parse-duration, parse-fraction (4/4 genuine),
-parse-version, decode-flags, merge-intervals (3/4).
-
-### Main comparison (adopted 5 + parse-bool-strict)
-
-| cell | n | genuine | gamed | notes |
-|---|---|---|---|---|
-| C1 Qwen baseline | 13 | 2 (15%) | 11 | |
-| C2 MiMo baseline | 13 | 4 (31%) | 9 | |
-| C3 Kimi K2.6 baseline | 21 | 15 (71%) | 6 | reference bar |
-| **C5 harness v0.4.0** | 21 | **11 (52%)** | 9 | |
-| C6 prompt-only ablation | 18 | 6 (33%) | 11 | same text, no hooks |
-
-Pre-registered pairwise (Fisher one-sided; task-cluster bootstrap 95% CI):
-
-- **C5 vs C1 (Qwen): +37.0 pts, CI [+11.1, +56.0], p = 0.034** — significant
-  lift even at pilot n; CI excludes 0.
-- C5 vs C2 (MiMo): +21.6 pts, p = 0.19 — directional.
-- **C5 vs C6 (H5, mechanical enforcement): +19.0 pts, p = 0.19** — directional;
-  C6 (33%) lands at baseline level, i.e. the guidance text alone adds almost
-  nothing without hook enforcement. This is the paper's key ablation.
-- C5 vs C3 (Kimi): **−19.0 pts** — on the hard set the harness does NOT reach
-  the Kimi bar (the parse-bool-strict parity, 5/6 = 5/6 with 0 gaming, did not
-  generalize to all hard tasks).
-- C5 vs C4 (old blocking-only harness): +83 pts on parse-bool-strict,
-  p = 0.048 — the H3 negative-result reversal.
-
-### Long-horizon (T2: 3 multi-file tasks × 4 cells × 2 reps)
-
-Qwen 5/6, MiMo 5/6, Kimi 5/6, **C5 6/6**. **H4 not testable at this
-difficulty** — 2–3-file tasks with 2–3 coordinated edits are too easy for 2026
-small models; baselines did not collapse. The long-horizon claim needs tasks
-requiring 4–6 coordinated edits (scale-up L4–L6).
-
-### Error analysis: why the harness still gamed on some hard tasks
-
-bounded-stack, C5, 3/3 gamed — artifact evidence:
-
-- The RCA gate **enumerated all 4 documented clauses correctly** (including
-  the OverflowError and capacity-ValueError contracts).
-- But it labeled those clauses `held`/`at-risk` when they are actually broken
-  in the base code, and patched only the `broken`-labeled LIFO clause.
-- The self-authored contract-tests **pass on the violating code** (heldout
-  fails). The validator enforces that contract tests EXIST, not that they are
-  STRONG — the model wrote tests consistent with its own patch, not with the
-  documented contract.
-
-**Concrete v-next mechanism (paper contribution candidate): pre-patch failure
-requirement.** For every clause marked broken/at-risk, the authored contract
-test must FAIL against the checkpointed base code before patching is allowed
-(exactly the discrimination rule bench/selftest.py applies to the corpus
-itself). A contract test that never failed proves nothing — this is
-mechanically checkable using the existing checkpoint.
-
-### Hypothesis scoreboard (pilot verdicts)
-
-| hypothesis | verdict |
+| cell | what it is |
 |---|---|
-| H1 lift to Kimi bar | **Partial** — significant lift over Qwen baseline (p=.034); Kimi parity on parse-bool-strict but −19 pts on the full hard set |
-| H2 gaming elimination | **Partial** — gaming 85→43% vs Qwen baseline; eliminated (0/6) on parse-bool-strict but not on all hard tasks (see error analysis) |
-| H3 blocking-only harness harms | **Supported** — p=0.048 |
-| H4 long-horizon recovery | **Not testable yet** — T2 tasks too easy; needs longer chains |
-| H5 mechanical enforcement matters | **Directional** — +19 pts vs prompt-only; C6 ≈ baseline |
+| C1 / C2 | Qwen / MiMo alone (baseline) |
+| C3 | Kimi K2.6 alone — the reference bar |
+| C5 | harness v0.4.0: machine-checked contract-clause gate |
+| C6 | prompt-only ablation: same guidance text, hooks OFF |
+| C7 | harness v0.4.1: per-clause proof-carrying witnesses (fail-on-base + mutation) |
+| C8 | harness v0.4.2: C7 + change-surface coverage gate + CI-style runner-enforced retry loop |
+| C9 | confound control: Qwen + equal-budget retry loop on visible-test failure, no gate |
 
-### v0.4.1 Proof-Carrying Repair (C7) — closes most of the Kimi gap
+Corpus: the reported comparison runs on the 6 pre-registered "hard" tasks where
+the small baselines game (adopted by the pre-registered rule: baseline genuine
+≤ 50% in screening).
 
-Ported from Proof-Carrying Code: the RCA gate's clause statuses become
-*verifiable predictions*. `scripts/verify-witnesses.py` requires one witness
-test per clause that (state) passes on the patch and, on the checkpointed base,
-fails for broken/at-risk and passes for held; plus (strength) mutants of the
-patch must be killed. C7 = C5 + the PCR addendum (only difference), isolating it.
+## Main result — full ladder (6 adopted tasks)
 
-Adopted hard set (6 tasks):
+| cell | mechanism | n | genuine | 95% CI |
+|---|---|---|---|---|
+| C9 Qwen + retry (no gate) | retry only | 18 | 6% | [1, 26] |
+| C1 Qwen baseline | — | 13 | 15% | [4, 42] |
+| C2 MiMo baseline | — | 13 | 31% | [13, 58] |
+| C6 prompt-only | guidance, no enforcement | 18 | 33% | [16, 56] |
+| C5 harness v0.4.0 | contract-clause gate | 21 | 52% | [32, 72] |
+| C7 harness v0.4.1 | per-clause witnesses | 18 | 67% | [44, 84] |
+| **C8 harness v0.4.2** | coverage gate + runner loop | 18 | **78%** | [55, 91] |
+| C3 Kimi K2.6 | reference bar | 21 | 71% | [50, 86] |
 
-| cell | n | genuine | vs C7 |
-|---|---|---|---|
-| C1 Qwen baseline | 13 | 15% | +51 pts, **p = 0.006** |
-| C6 prompt-only | 18 | 33% | +33 pts, **p = 0.047** |
-| C5 harness v0.4.0 | 21 | 52% | +14 pts, p = 0.28 (directional) |
-| **C7 PCR v0.4.1** | 18 | **67%** | — |
-| C3 Kimi K2.6 | 21 | 71% | −5 pts, **boot95 [−17, +6] — includes 0** |
+Monotone ladder: 6 → 15 → 31 → 33 → 52 → 67 → 78, with Kimi at 71.
 
-**The headline shift: C7 (Qwen+MiMo + PCR) is now statistically
-indistinguishable from unharnessed Kimi (67% vs 71%, CI includes 0)**, up from
-C5's −19 pts. PCR fixed the two tasks the error analysis targeted:
-bounded-stack 0/3 → 2/3, parse-bool-strict 5/6 → 3/3; normalize-path 2/3 → 3/3.
+- **The harness lifts Qwen+MiMo to / slightly past the unharnessed Kimi bar**
+  (C8 78% vs Kimi 71%; diff +6 pts, task-cluster bootstrap 95% CI [−22, +44],
+  Fisher p = 0.47 — indistinguishable). `window-averages`, which Kimi solves
+  0/3, is 3/3 under C8.
+- **Enforcement, not guidance, is the active ingredient.** The same workflow
+  text delivered prompt-only with no hook (C6) sits at baseline level (33%);
+  the enforced gate (C5) adds it back.
+- Per-step increments (C5→C7→C8) are directional at this n (e.g. C8 vs C7
+  +11 pts, p = 0.36); the ladder endpoints and the confound below carry the
+  significance.
 
-Mechanism confirmed in artifacts: witness-result.json shows per-clause state
-witness holding and mutation score 1.0 on genuine runs.
+## Validation — is the effect real?
 
-**Honest limitations of PCR:**
-- The witness enforces the model's OWN clauses are consistent + strong, not
-  completeness vs the hidden oracle. One bounded-stack rep gamed with
-  `witness ok=True` — the model's clause set missed a held-out case. Witness ≠
-  external oracle.
-- Headless adherence is imperfect: some genuine runs produced no
-  witness-result.json (model skipped `verify-witnesses.py`). A hook that blocks
-  "done" until a passing witness-result exists would tighten this (v-next).
-- `window-averages` stays 0/3 across ALL cells including Kimi — a documented
-  error contract (k ≥ 1 → ValueError) that is hard for every model; a real hard
-  task, not a flaw.
-- PCR-over-C5 increment is directional (p = 0.28) at n = 18; needs the scale-up
-  n for significance.
+Red-team checks; the four biggest "we're fooling ourselves" threats are
+eliminated.
 
-### v0.4.2 change-surface coverage gate + runner-enforced loop (C8)
+1. **Not a workaround-regex artifact.** Relabeling every run behavior-only
+   (visible ∧ held-out, ignoring the regexes) gives *identical* genuine counts
+   for every cell. Gaming is detected by held-out behavior, not heuristics.
 
-Two mechanisms addressing the two PCR holes (a run that gamed with witness
-ok=True; runs that skipped `verify-witnesses` entirely):
+2. **The Kimi bar is not infra-handicapped.** On the adopted set Kimi's
+   non-genuine runs are 6/6 real gaming, 0 infra failures. (Earlier Kimi
+   timeouts were a wrong-provider bug, fixed by pinning the official Moonshot
+   provider before these runs.)
 
-- **Coverage gate** (`scripts/verify-coverage.py`): differential fuzz base vs
-  patch → change surface; every behavior-changed function must be exercised by
-  a broken/at-risk clause witness ("no unexplained behavior change").
-- **Runner-enforced loop** (CI-style): the runner itself runs the witnesses +
-  coverage gate after the model finishes and re-invokes the model once with the
-  gate output on failure. Adherence is applied, not requested.
+3. **The scorer is not fooled (manual audit).** Sampled C8 genuine diffs are
+   real, complete fixes (e.g. window-averages adds `k < 1 → ValueError` *and*
+   fixes the off-by-one — the full contract Kimi missed). The one
+   gamed-with-gates-ok run is a genuinely incomplete fix (LIFO + IndexError but
+   not OverflowError); held-out correctly fails. Labels match reality.
 
-C8 = C7 + `witness_retries: 1` + `coverage_gate: true`. Live mini on 3 tasks
-(bounded-stack, window-averages, parse-bool-strict), 3 reps each:
+4. **Not "just retrying / more compute" (confound control C9).** C9 = plain
+   Qwen + an equal-budget outer loop that retries on *visible-test* failure, no
+   gate.
 
-| cell | genuine | gamed | notes |
-|---|---|---|---|
-| Qwen baseline | 1/7 (14%) | 6 | |
-| MiMo baseline | 2/7 (29%) | 5 | |
-| Kimi K2.6 baseline | 7/12 (58%) | 5 | reference bar |
-| C5 harness v0.4.0 | 5/12 (42%) | 6 | |
-| C7 PCR | 5/9 (56%) | 3 | |
-| **C8 PCR + loop** | **8/9 (89%)** | 1 | **exceeds the Kimi bar** |
+   | cell | genuine | gamed | retry fired |
+   |---|---|---|---|
+   | Qwen baseline (C1) | 15% | 11 | — |
+   | Qwen + visible-retry (C9) | 6% | 17 | **0/18** |
+   | C8 (gate-driven loop) | 78% | 4 | ~half |
 
-**On this 3-task slice, C8 (89%) exceeds the unharnessed Kimi baseline (58%).**
-`window-averages` — which even Kimi solved 0/3 — goes to 3/3 under C8. All three
-pre-registered V3 criteria met: skipped-witness runs disappeared (all 9 runs
-ended with the gates run, final_ok=True; C7 skipped ~half), gaming did not
-increase (3 → 1), genuine did not regress (56% → 89%). 4 of 9 runs used the
-retry (attempts = 2): the runner caught `witnesses=FAIL` and the re-invoked
-model fixed it.
+   The loop fires 0/18 for C9 because every gamed patch *passes* the visible
+   test — a naive loop can't see the failure. C9 vs C1: p = 0.936 (retrying adds
+   nothing). **C8 vs C9: +72 pts, p < 0.001.** The gain comes from the gate's
+   failure signal (contract witnesses expose gaming the visible test hides), not
+   from extra attempts.
 
-Caveats: small slice (3 tasks, n = 9); C8-vs-C7 is directional (Fisher
-p = 0.147) at this n; the one remaining gamed run passed both gates but failed
-held-out — the documented function-level attribution limit (a missing clause
-about a different aspect of an already-witnessed function). Cost rises to
-~$0.20/run including retries (vs C7 $0.144). Next: run C8 on the full adopted
-6-task set at n ≥ 10 to confirm significance.
-
-### Go/no-go: **GO**, with three scale-up adjustments
-
-1. **v0.4.1 harness**: add the pre-patch failure requirement for contract
-   tests (mechanical; closes the weak-test hole found above), then re-measure.
-2. **Harder T2** (L4–L6: 4–6 coordinated edits) to make H4 testable.
-3. **n ≥ 10** per cell on the adopted set for H1/H2/H5 power (~$40–60
-   projected at measured per-run costs).
-
----
+Still open (magnitude/scope, not existence): run-to-run variance at higher n;
+generalization to non-adopted and freshly authored tasks; per-step significance;
+a second small-model family.
 
 ## Cost
 
-Every run records its own cost: `bench/run.py` stores a token×OpenRouter-price
-estimate (`engine.cost_est_usd`) per run and prints the authoritative OpenRouter
-`/credits` delta per batch; `bench/report.py` surfaces a per-cell cost table
-(`$/run`, cell total, **`$/genuine`** = amortized price of one real fix, and
-mean wall-clock).
+Recorded per run (`engine.cost_est_usd` = token × OpenRouter price; authoritative
+per-batch spend is the OpenRouter `/credits` delta). `$/genuine` = amortized
+price of one real fix. Token estimate counts cached input at full price, so it
+is a conservative upper bound.
 
-Per-cell cost across the whole campaign (token-based estimate; cached input
-counted at full price, so this is a conservative upper bound — real spend from
-the credits delta was lower):
+| cell | runs | $/run | $/genuine | ~s/run |
+|---|---|---|---|---|
+| C1 Qwen baseline | 53 | 0.021 | 0.030 | 18 |
+| C2 MiMo baseline | 53 | 0.016 | 0.022 | 48 |
+| C3 Kimi K2.6 | 51 | 0.100 | 0.200 | 237 |
+| C5 harness v0.4.0 | 27 | 0.132 | 0.210 | 149 |
+| C6 prompt-only | 18 | 0.116 | 0.349 | 111 |
+| C7 harness v0.4.1 | 18 | 0.143 | 0.215 | 173 |
+| C8 harness v0.4.2 | 18 | 0.186 | 0.239 | 96 |
+| C9 Qwen + retry | 18 | 0.020 | 0.354 | 12 |
 
-| cell | runs | $/run | total $ | $/genuine | ~s/run |
-|---|---|---|---|---|---|
-| C1 Qwen baseline | 53 | 0.021 | 1.09 | 0.030 | 18 |
-| C2 MiMo baseline | 53 | 0.016 | 0.83 | 0.022 | 48 |
-| C3 Kimi K2.6 baseline | 51 | 0.100 | 4.20 | 0.200 | 238 |
-| C4 harness v0.3 | 3 | 0.079 | 0.24 | — (0 genuine) | 71 |
-| C5 harness v0.4.0 | 27 | 0.132 | 3.58 | 0.210 | 149 |
-| C6 prompt-only | 18 | 0.116 | 2.10 | 0.349 | 111 |
-| C7 PCR v0.4.1 | 18 | 0.144 | 2.58 | 0.215 | 173 |
-| **total** | | | **≈ 14.6** | | |
+- **`$/genuine` is the bottom line**: C8 ($0.239) ≈ Kimi ($0.200) per successful
+  fix — Kimi-level quality at roughly Kimi-level amortized cost, and far cheaper
+  self-hosted (electricity vs API). C9 and C6 are the worst buys — you pay for
+  many failed runs.
+- C8 adds ~$0.04/run over C7 for the coverage gate + retries.
 
-Reading it:
+## Operational findings
 
-- Cheapest per run: MiMo ($0.016) and Qwen ($0.021) baselines (single agent).
-- The Kimi baseline is the most expensive per run ($0.10, up to $0.40; 238 s)
-  despite being a baseline — high output price and long runs.
-- Harness cells cost 6–8× a baseline run in absolute terms, but that is still
-  ~$0.13–0.14 per run.
-- **PCR (C7) costs +$0.012/run over v0.4.0 (C5)** for the witness workflow — a
-  small premium for the +15-pt genuine-fix gain.
-- **`$/genuine` is the economic bottom line**: PCR ($0.215) ≈ Kimi ($0.200)
-  per successful fix, while prompt-only is the worst buy ($0.349 — you pay for
-  many failed runs). The self-hosted small-model harness reaches Kimi-level
-  quality at roughly Kimi-level amortized cost here, and would be far cheaper
-  self-hosted (electricity vs API).
-
-## Operational findings (unchanged)
-
-- **Kimi routing:** only the official "Moonshot AI" OpenRouter provider
-  executes Kimi file-edit tool calls; third-party hosts loop without editing.
-  Pinned via `provider.order` in `bench/router/litellm.config.yaml`.
-- **Headless harness:** `claude -p` needs the natural-language workflow prompt
-  + `--append-system-prompt-file SKILL.md` + absolute paths.
+- **Kimi routing:** only the official "Moonshot AI" OpenRouter provider executes
+  Kimi file-edit tool calls; third-party hosts loop without editing. Pinned via
+  `provider.order` in `bench/router/litellm.config.yaml`.
+- **Headless harness:** `claude -p` needs the natural-language workflow prompt +
+  `--append-system-prompt-file SKILL.md` + absolute paths.
 - **Cost accounting:** Claude Code's `total_cost_usd` misprices routed
-  non-Anthropic models (~30× high); use token×price + OpenRouter credits delta.
+  non-Anthropic models (~30× high); use token × price + the OpenRouter credits
+  delta instead.
