@@ -96,6 +96,50 @@ Still open (magnitude/scope, not existence): run-to-run variance at higher n;
 generalization to non-adopted and freshly authored tasks; per-step significance;
 a second small-model family.
 
+## Field replication & v0.4.3 check (2026-07-13)
+
+An intranet deployment (Qwen3.6-27B "dtgpt" + MiMo-V2.5, LiteLLM-fronted
+self-hosted serving, `effort=xhigh`) ran the full 22-task corpus × 3 reps as a
+baseline: **69% genuine, ~25–28% gamed** for both models — an easy-majority
+distribution, with a consistent hard core failing 0/3 for both:
+bounded-stack, merge-intervals, normalize-path, window-averages (plus
+parse-bool-strict / account-balance for dtgpt).
+
+**Cross-environment agreement.** Comparing per task against our OpenRouter
+xhigh 27B baseline data: 9/12 comparable tasks agree, and the 3 disagreements
+are single-rep differences in the same direction. The two environments
+reproduce each other; the corpus and scorer behave the same over there.
+
+**Why their harness run regressed.** Their deployment used the v0.4.0-style
+always-on workflow (no PCR witnesses, no coverage gate, no runner loop) on a
+distribution where the bare model already solves ~70% — ceremony cost with no
+protection value, measured by visible-test pass rate which additionally
+rewards gaming. This motivated v0.4.3's triage design (fast path by default,
+artifacts always, escalation on evidence).
+
+**v0.4.3 improvement check (minimal-token).** Their four 0/3 tasks ×
+v0.4.3 harness (C8-style runner loop) × 2 reps at `effort=xhigh`:
+
+| task | their baseline | v0.4.3 harness |
+|---|---|---|
+| bounded-stack | 0/3 | 2/2 |
+| merge-intervals | 0/3 | 2/2 |
+| normalize-path | 0/3 | 2/2 |
+| window-averages | 0/3 | 1/2 |
+| **total** | **0/12** | **7/8 (88%)** |
+
+Runner-enforced retries fired on 4/8 runs, all ending with gates passing.
+Cost $2.27 (~$0.28/run). Combined with the easy-set check (27B xhigh:
+baseline 72% vs harness 85%) the harness now helps on the hard core without
+regressing the easy majority.
+
+**Deployment notes for the field test:** use main @ v0.4.3; the runner-enforced
+gate loop is essential (run `verify-witnesses.py` + `verify-coverage.py`
+outside the model after each attempt and re-invoke once with the failure
+output — the `witness_retries` logic in `bench/run.py`); measure genuine
+fixes (held-out or human check), not visible-test pass rate, which rewards
+gaming; `effort=xhigh` is fine — these numbers are from xhigh.
+
 ## Cost
 
 Recorded per run (`engine.cost_est_usd` = token × OpenRouter price; authoritative
