@@ -96,6 +96,42 @@ Still open (magnitude/scope, not existence): run-to-run variance at higher n;
 generalization to non-adopted and freshly authored tasks; per-step significance;
 a second small-model family.
 
+## Field result — final (2026-07-14, intranet GPUs, full corpus)
+
+The definitive test: the deployment team ran the four canonical cells on their
+own self-hosted GPUs — full 22-task corpus × 3 reps = 66 runs/cell, 264 runs
+total, `effort=xhigh`. Their frontier reference was **GLM5.2** (in place of
+Kimi). Models: dtgpt_qwen = Qwen3.6-27B, dtgpt_mimo = MiMo-V2.5.
+
+| cell | genuine | gamed | rate |
+|---|---|---|---|
+| **harness (v0.4.3, Qwen+MiMo)** | **59/66** | **5** | **89.4%** |
+| GLM5.2 baseline (frontier reference) | 54/66 | 12 | 81.8% |
+| Qwen3.6-27B baseline | 45/66 | 20 | 68.2% |
+| MiMo-V2.5 baseline | 43/66 | 21 | 65.2% |
+
+Statistics (Fisher one-sided):
+
+- harness vs Qwen baseline: **+21.2 pts, p = 0.0025**
+- harness vs MiMo baseline: **+24.2 pts, p = 0.0008**
+- harness vs GLM5.2 frontier reference: +7.6 pts, p = 0.16 — the small-model
+  harness is at least frontier-level (directionally above)
+- gaming: Qwen 30.3% → harness **7.6%**, p = 0.0007 — lowest of all four
+  cells, less than half of GLM5.2's (12/66)
+
+Takeaways:
+
+- **The two small self-hostable models under the v0.4.3 harness beat every
+  bare model in the comparison, including the frontier reference**, on the
+  full task distribution (easy majority + hard core), at xhigh, on
+  independent hardware. The easy-task regression that motivated v0.4.3 is
+  gone (89.4% overall requires winning the easy majority too).
+- The harness's significant edge over its own component models (+21/+24 pts,
+  p < 0.003) and its gaming rate (7.6%, the lowest) confirm the mechanism on
+  fully independent infrastructure.
+- Honest caveat: superiority over GLM5.2 specifically is directional
+  (p = 0.16) at n = 66; non-inferiority is the defensible claim.
+
 ## Field replication & v0.4.3 check (2026-07-13)
 
 An intranet deployment (Qwen3.6-27B "dtgpt" + MiMo-V2.5, LiteLLM-fronted

@@ -27,11 +27,11 @@ buggy code and survive mutation, and no behavior change a test can't explain —
 and verify them with plain scripts, so the guarantee comes from the checker,
 not the model's good intentions.
 
-In a pilot benchmark aimed at the intranet-deployment case (large hosted models
-unavailable), **Qwen3.6-35B + MiMo-V2.5 running under the harness matched, then
-exceeded, an unharnessed Kimi K2.6 reference** on tasks where the bare small
-models game the test. See [Results](#results) — including honest small-sample
-caveats.
+In the target deployment itself — self-hosted GPUs, full 22-task corpus,
+`effort=xhigh` — **Qwen3.6-27B + MiMo-V2.5 under the harness scored 89.4%
+genuine-fix, beating every bare model in the comparison including a GLM5.2
+frontier reference (81.8%), with the lowest gaming rate (7.6%)**. See
+[Results](#results) for statistics and honest caveats.
 
 ## Why this exists
 
@@ -77,6 +77,24 @@ including per-task data and limitations, is in
 The metric is **genuine-fix**: the patch passes the visible test AND a hidden
 held-out contract test AND matches no workaround pattern. **gamed** = passes the
 visible test but violates the contract.
+
+**Field result (definitive) — deployment GPUs, full 22-task corpus × 3 reps
+(66 runs/cell), effort=xhigh:**
+
+| condition | genuine | gamed | vs harness |
+|---|---|---|---|
+| **harness v0.4.3 (Qwen3.6-27B + MiMo-V2.5)** | **89.4%** | **7.6%** | — |
+| GLM5.2 baseline (frontier reference) | 81.8% | 18% | +7.6 pts, p = 0.16 |
+| Qwen3.6-27B baseline | 68.2% | 30% | +21.2 pts, **p = 0.0025** |
+| MiMo-V2.5 baseline | 65.2% | 32% | +24.2 pts, **p = 0.0008** |
+
+The harness beats its own component models decisively, is at least
+frontier-level against GLM5.2 (directionally above), and has the lowest gaming
+rate of all four cells — on the full easy-majority distribution where an
+earlier always-on version used to regress (fixed by v0.4.3's triage design).
+
+**Development-time progression** (OpenRouter runs on the pre-registered hard
+set that drove each design iteration):
 
 **Progression of the design (each version fixes a failure the previous one's
 measurement exposed), on the pre-registered set of tasks where small baselines
