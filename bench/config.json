@@ -1,17 +1,15 @@
 {
-  "_comment": "Single source of truth for the causal-repair benchmark. Model ids are OpenRouter ids verified live 2026-07. The ':floor' suffix asks OpenRouter to route to the cheapest provider for that model. Set reps and max_tokens to trade cost vs statistical confidence.",
+  "_comment": "Single source of truth for the causal-repair benchmark. Model ids are OpenRouter ids; ':floor' routes to the cheapest provider. Kimi must stay on the official Moonshot provider (third-party hosts do not execute its tool calls; pinned in bench/router/litellm.config.yaml). Four canonical cells: three bare baselines and the harness (Qwen patches/judges + MiMo investigates/reviews/verifies, hooks + PCR witnesses + coverage gate + runner-enforced retry loop).",
 
   "models": {
-    "qwen":  "qwen/qwen3.6-35b-a3b:floor",
-    "qwen27": "qwen/qwen3.6-27b:floor",
+    "qwen":  "qwen/qwen3.6-27b:floor",
     "mimo":  "xiaomi/mimo-v2.5:floor",
     "kimi":  "moonshotai/kimi-k2.6"
   },
 
   "_prices_comment": "OpenRouter USD per 1M tokens (verified 2026-07). Used for real cost, since Claude Code's reported total_cost_usd misprices non-Anthropic models routed via the proxy.",
   "prices": {
-    "qwen": {"in": 0.14,  "out": 1.00},
-    "qwen27": {"in": 0.285, "out": 2.40},
+    "qwen": {"in": 0.285, "out": 2.40},
     "mimo": {"in": 0.105, "out": 0.28},
     "kimi": {"in": 0.72,  "out": 3.50}
   },
@@ -21,74 +19,25 @@
   "run_timeout_seconds": 900,
 
   "cells": {
-    "C1-qwen-baseline": {
+    "qwen-baseline": {
       "mode": "baseline",
       "model": "qwen",
-      "role": "small-model baseline"
+      "role": "bare Qwen3.6-27B (the intranet deployment model)"
     },
-    "C2-mimo-baseline": {
+    "mimo-baseline": {
       "mode": "baseline",
       "model": "mimo",
-      "role": "small-model baseline"
+      "role": "bare MiMo-V2.5"
     },
-    "C3-kimi-baseline": {
+    "kimi-baseline": {
       "mode": "baseline",
       "model": "kimi",
-      "role": "reference bar (target to reach)"
+      "role": "bare Kimi K2.6 - the frontier reference bar"
     },
-    "C4-qwen-mimo-harness": {
+    "harness": {
       "mode": "harness",
       "model": "qwen",
-      "role": "treatment: causal-repair harness on Qwen+MiMo only (v0.3 workflow, measured 2026-07-12)",
-      "agent_models": {
-        "investigator": "mimo",
-        "judge": "qwen",
-        "reviewer": "mimo",
-        "verifier": "mimo"
-      },
-      "hooks": true
-    },
-    "C5-harness-v2": {
-      "mode": "harness",
-      "model": "qwen",
-      "role": "treatment: Ledger-Relay v0.4.0 harness on Qwen+MiMo (contract-completeness gate)",
-      "agent_models": {
-        "investigator": "mimo",
-        "judge": "qwen",
-        "reviewer": "mimo",
-        "verifier": "mimo"
-      },
-      "hooks": true
-    },
-    "C6-prompt-only": {
-      "mode": "harness",
-      "model": "qwen",
-      "role": "ablation (H5): identical v0.4.0 skill text + scripts, but NO hook enforcement — isolates mechanical enforcement as the causal ingredient",
-      "agent_models": {
-        "investigator": "mimo",
-        "judge": "qwen",
-        "reviewer": "mimo",
-        "verifier": "mimo"
-      },
-      "hooks": false
-    },
-    "C7-pcr": {
-      "mode": "harness",
-      "model": "qwen",
-      "role": "treatment v0.4.1 (Proof-Carrying Repair): C5 + per-clause witness gate (contract tests must fail on base and kill mutants). extra_prompt is the only difference from C5, isolating PCR.",
-      "agent_models": {
-        "investigator": "mimo",
-        "judge": "qwen",
-        "reviewer": "mimo",
-        "verifier": "mimo"
-      },
-      "hooks": true,
-      "extra_prompt": "resources/pcr-addendum.md"
-    },
-    "C8-pcr-loop": {
-      "mode": "harness",
-      "model": "qwen",
-      "role": "treatment v0.4.2: C7 + runner-enforced gates (CI-style outer loop: verify-witnesses + change-surface coverage run by the RUNNER; on failure the model is re-invoked once with the gate output). Diffs from C7: witness_retries + coverage_gate.",
+      "role": "the full harness (v0.4.3): adaptive triage skill + hooks + PCR per-clause witnesses + change-surface coverage gate + runner-enforced retry loop. Qwen authors patches/judges; MiMo investigates/reviews/verifies.",
       "agent_models": {
         "investigator": "mimo",
         "judge": "qwen",
@@ -99,45 +48,6 @@
       "extra_prompt": "resources/pcr-addendum.md",
       "witness_retries": 1,
       "coverage_gate": true
-    },
-    "C9-qwen-retry": {
-      "mode": "baseline",
-      "model": "qwen",
-      "role": "confound control: plain Qwen baseline + an equal-budget outer retry loop that re-invokes on VISIBLE-test failure (no plugin, no gate). Isolates 'is the harness gain just retrying?' A gamed patch passes the visible test, so this loop cannot fix gaming.",
-      "retry_on": "visible",
-      "witness_retries": 1
-    },
-    "Q27-baseline": {
-      "mode": "baseline",
-      "model": "qwen27",
-      "role": "27B replication: plain Qwen3.6-27B baseline (the real intranet model, not the 35B-A3B used elsewhere)."
-    },
-    "Q27-harness-v2": {
-      "mode": "harness",
-      "model": "qwen27",
-      "role": "27B replication: full v0.4.2 harness on Qwen3.6-27B (+MiMo). Does the harness help or HURT on the weaker 27B model? Mirror of C8.",
-      "agent_models": {
-        "investigator": "mimo",
-        "judge": "qwen27",
-        "reviewer": "mimo",
-        "verifier": "mimo"
-      },
-      "hooks": true,
-      "extra_prompt": "resources/pcr-addendum.md",
-      "witness_retries": 1,
-      "coverage_gate": true
-    },
-    "Q27-harness-c5": {
-      "mode": "harness",
-      "model": "qwen27",
-      "role": "27B replication of the user's ACTUAL setup: v0.4.0-style harness (contract-clause gate only, NO PCR witnesses, NO coverage gate, NO runner-enforced retry loop). Mirror of C5 on Qwen3.6-27B - this is what their intranet reportedly runs.",
-      "agent_models": {
-        "investigator": "mimo",
-        "judge": "qwen27",
-        "reviewer": "mimo",
-        "verifier": "mimo"
-      },
-      "hooks": true
     }
   }
 }

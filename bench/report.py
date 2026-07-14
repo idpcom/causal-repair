@@ -262,8 +262,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         by_cell[r["cell"]].append(r)
 
     # Preserve config cell order if available, else sorted.
-    order = ["C1-qwen-baseline", "C2-mimo-baseline", "C3-kimi-baseline",
-             "C4-qwen-mimo-harness", "C5-harness-v2", "C6-prompt-only"]
+    order = ["qwen-baseline", "mimo-baseline", "kimi-baseline", "harness"]
     ordered = [c for c in order if c in by_cell] + sorted(c for c in by_cell if c not in order)
 
     cells = {name: summarize_cell(by_cell[name]) for name in ordered}
@@ -273,11 +272,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         by_bug_class(rows)
     comparison(cells)
     pairwise_stats(by_cell, [
-        ("C5-harness-v2", "C1-qwen-baseline"),
-        ("C5-harness-v2", "C2-mimo-baseline"),
-        ("C5-harness-v2", "C3-kimi-baseline"),
-        ("C5-harness-v2", "C6-prompt-only"),
-        ("C5-harness-v2", "C4-qwen-mimo-harness"),
+        ("harness", "qwen-baseline"),
+        ("harness", "mimo-baseline"),
+        ("harness", "kimi-baseline"),
     ])
     return 0
 
