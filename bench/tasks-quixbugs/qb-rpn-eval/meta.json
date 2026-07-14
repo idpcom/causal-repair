@@ -1,0 +1,16 @@
+{
+  "id": "qb-rpn-eval",
+  "title": "QuixBugs: rpn_eval",
+  "language": "python",
+  "bug_class": "quixbugs-external",
+  "source": "QuixBugs (MIT, github.com/jkoppel/QuixBugs)",
+  "prompt": "Running `python test_visible.py` fails: rpn_eval returns a wrong result. Fix rpn_eval.py according to its documented behavior.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

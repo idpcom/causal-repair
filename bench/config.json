@@ -4,14 +4,16 @@
   "models": {
     "qwen":  "qwen/qwen3.6-27b:floor",
     "mimo":  "xiaomi/mimo-v2.5:floor",
-    "kimi":  "moonshotai/kimi-k2.6"
+    "kimi":  "moonshotai/kimi-k2.6",
+    "glm":   "z-ai/glm-5.2"
   },
 
   "_prices_comment": "OpenRouter USD per 1M tokens (verified 2026-07). Used for real cost, since Claude Code's reported total_cost_usd misprices non-Anthropic models routed via the proxy.",
   "prices": {
     "qwen": {"in": 0.285, "out": 2.40},
     "mimo": {"in": 0.105, "out": 0.28},
-    "kimi": {"in": 0.72,  "out": 3.50}
+    "kimi": {"in": 0.72,  "out": 3.50},
+    "glm":  {"in": 0.93,  "out": 2.92}
   },
 
   "reps": 3,
@@ -41,6 +43,57 @@
       "agent_models": {
         "investigator": "mimo",
         "judge": "qwen",
+        "reviewer": "mimo",
+        "verifier": "mimo"
+      },
+      "hooks": true,
+      "extra_prompt": "resources/pcr-addendum.md",
+      "witness_retries": 1,
+      "coverage_gate": true
+    },
+
+    "glm-baseline": {
+      "mode": "baseline",
+      "model": "glm",
+      "role": "MASS TEST: bare GLM 5.2 - the frontier reference used in the field deployment"
+    },
+    "harness-glm": {
+      "mode": "harness",
+      "model": "glm",
+      "role": "MASS TEST fair-comparison cell: the FULL harness with GLM 5.2 in every role (main/judge/investigator/reviewer/verifier). Tests whether the harness lifts the frontier too - the verifier literature predicts yes, which bounds our 'small models beat frontier' claim honestly.",
+      "agent_models": {
+        "investigator": "glm",
+        "judge": "glm",
+        "reviewer": "glm",
+        "verifier": "glm"
+      },
+      "hooks": true,
+      "extra_prompt": "resources/pcr-addendum.md",
+      "witness_retries": 1,
+      "coverage_gate": true
+    },
+    "harness-qwen-only": {
+      "mode": "harness",
+      "model": "qwen",
+      "role": "MASS TEST routing ablation: full harness with Qwen in every role. Isolates MiMo's contribution (vs the canonical qwen+mimo split).",
+      "agent_models": {
+        "investigator": "qwen",
+        "judge": "qwen",
+        "reviewer": "qwen",
+        "verifier": "qwen"
+      },
+      "hooks": true,
+      "extra_prompt": "resources/pcr-addendum.md",
+      "witness_retries": 1,
+      "coverage_gate": true
+    },
+    "harness-mimo-only": {
+      "mode": "harness",
+      "model": "mimo",
+      "role": "MASS TEST routing ablation: full harness with MiMo in every role. Isolates Qwen's contribution.",
+      "agent_models": {
+        "investigator": "mimo",
+        "judge": "mimo",
         "reviewer": "mimo",
         "verifier": "mimo"
       },

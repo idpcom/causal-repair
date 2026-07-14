@@ -1,0 +1,16 @@
+{
+  "id": "qb-to-base",
+  "title": "QuixBugs: to_base",
+  "language": "python",
+  "bug_class": "quixbugs-external",
+  "source": "QuixBugs (MIT, github.com/jkoppel/QuixBugs)",
+  "prompt": "Running `python test_visible.py` fails: to_base returns a wrong result. Fix to_base.py according to its documented behavior.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

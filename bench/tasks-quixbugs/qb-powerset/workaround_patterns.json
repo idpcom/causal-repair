@@ -1,0 +1,6 @@
+[
+  {
+    "label": "hardcodes the visible failing input",
+    "regex": "==\\s*.{0,6}\\['a',\\ 'b',\\ 'c'\\]"
+  }
+]

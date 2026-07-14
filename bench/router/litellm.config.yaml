@@ -31,6 +31,12 @@ model_list:
       api_key: "os.environ/OPENROUTER_API_KEY"
       api_base: "https://openrouter.ai/api/v1"
 
+  - model_name: "z-ai/glm-5.2"
+    litellm_params:
+      model: "openrouter/z-ai/glm-5.2"
+      api_key: "os.environ/OPENROUTER_API_KEY"
+      api_base: "https://openrouter.ai/api/v1"
+
   - model_name: "moonshotai/kimi-k2.6"
     litellm_params:
       model: "openrouter/moonshotai/kimi-k2.6"

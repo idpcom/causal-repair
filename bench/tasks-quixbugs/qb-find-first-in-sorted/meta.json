@@ -1,0 +1,16 @@
+{
+  "id": "qb-find-first-in-sorted",
+  "title": "QuixBugs: find_first_in_sorted",
+  "language": "python",
+  "bug_class": "quixbugs-external",
+  "source": "QuixBugs (MIT, github.com/jkoppel/QuixBugs)",
+  "prompt": "Running `python test_visible.py` fails: find_first_in_sorted returns a wrong result. Fix find_first_in_sorted.py according to its documented behavior.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

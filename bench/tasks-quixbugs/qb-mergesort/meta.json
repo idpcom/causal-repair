@@ -1,0 +1,16 @@
+{
+  "id": "qb-mergesort",
+  "title": "QuixBugs: mergesort",
+  "language": "python",
+  "bug_class": "quixbugs-external",
+  "source": "QuixBugs (MIT, github.com/jkoppel/QuixBugs)",
+  "prompt": "Running `python test_visible.py` fails: mergesort returns a wrong result. Fix mergesort.py according to its documented behavior.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

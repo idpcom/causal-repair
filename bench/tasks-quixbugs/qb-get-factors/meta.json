@@ -1,0 +1,16 @@
+{
+  "id": "qb-get-factors",
+  "title": "QuixBugs: get_factors",
+  "language": "python",
+  "bug_class": "quixbugs-external",
+  "source": "QuixBugs (MIT, github.com/jkoppel/QuixBugs)",
+  "prompt": "Running `python test_visible.py` fails: get_factors returns a wrong result. Fix get_factors.py according to its documented behavior.",
+  "visible_test_cmd": [
+    "python",
+    "test_visible.py"
+  ],
+  "heldout_test_cmd": [
+    "python",
+    "test_heldout.py"
+  ]
+}

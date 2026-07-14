@@ -80,7 +80,11 @@ def check_task(task_dir: Path) -> list[str]:
 
 
 def main() -> int:
-    tasks = sorted(p for p in TASKS_DIR.iterdir() if (p / "meta.json").exists())
+    import argparse
+    ap = argparse.ArgumentParser(description="Self-test a task corpus")
+    ap.add_argument("--tasks-dir", type=Path, default=TASKS_DIR)
+    args = ap.parse_args()
+    tasks = sorted(p for p in args.tasks_dir.resolve().iterdir() if (p / "meta.json").exists())
     if not tasks:
         print("no tasks found", file=sys.stderr)
         return 1

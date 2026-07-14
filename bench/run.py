@@ -406,8 +406,8 @@ def execute_run(
 # --------------------------------------------------------------------------- #
 # CLI
 # --------------------------------------------------------------------------- #
-def select_tasks(names: Optional[List[str]]) -> List[Path]:
-    all_tasks = sorted(p for p in TASKS_DIR.iterdir() if (p / "meta.json").exists())
+def select_tasks(names: Optional[List[str]], tasks_dir: Path = TASKS_DIR) -> List[Path]:
+    all_tasks = sorted(p for p in tasks_dir.iterdir() if (p / "meta.json").exists())
     if not names:
         return all_tasks
     by_id = {p.name: p for p in all_tasks}
@@ -422,6 +422,8 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     p.add_argument("--config", type=Path, default=BENCH_DIR / "config.json")
     p.add_argument("--cells", nargs="*", help="subset of cell names (default: all)")
     p.add_argument("--tasks", nargs="*", help="subset of task ids (default: all)")
+    p.add_argument("--tasks-dir", type=Path, default=TASKS_DIR,
+                   help="task corpus directory (e.g. bench/tasks-quixbugs for the external set)")
     p.add_argument("--reps", type=int, help="override reps from config")
     p.add_argument("--out", type=Path, default=BENCH_DIR / "results" / "results.jsonl")
     p.add_argument("--workspace", type=Path, default=BENCH_DIR / "results" / "runs")
@@ -471,7 +473,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     args.workspace = args.workspace.resolve()
 
     cell_names = args.cells or list(cfg["cells"].keys())
-    tasks = select_tasks(args.tasks)
+    tasks = select_tasks(args.tasks, args.tasks_dir.resolve())
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.workspace.mkdir(parents=True, exist_ok=True)
