@@ -119,6 +119,21 @@ Statistics (Fisher one-sided):
 - gaming: Qwen 30.3% → harness **7.6%**, p = 0.0007 — lowest of all four
   cells, less than half of GLM5.2's (12/66)
 
+Mechanism evidence from the field run:
+
+- **The gate loop did the work**: 37/66 harness runs (56%) FAILED the
+  witness/coverage gates on the first patch and were forced to retry; **33 of
+  those 37 converted to genuine_fix after the retry**. This is the
+  FAIL→genuine pipeline in production — the same conclusion as the OpenRouter
+  confound control (a visible-test retry loop fires ~never; the gate's failure
+  signal is what exposes gaming).
+- **Gaming down ~75%**: baselines averaged ~20 gamed runs; the harness had 5.
+- **Per bug class (vs the Qwen baseline)**: interlocking 0% → 78%, state-order
+  0% → 83%, error-masking 50% → 67%, error-contract 80% → 93%; classes already
+  at 100% (long-chain, off-by-one, …) stayed there — i.e. the harness fixes
+  the classes the bare model cannot solve at all without regressing the ones
+  it can.
+
 Takeaways:
 
 - **The two small self-hostable models under the v0.4.3 harness beat every
