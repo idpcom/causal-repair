@@ -1,7 +1,7 @@
 {
   "name": "causal-repair",
   "description": "Root-cause-first repair harness for Claude Code that makes small, self-hostable models fix bugs like a frontier model. Patches must carry machine-checked evidence they restore the documented contract (enumerated contract clauses, authored tests that fail on the bug and survive mutation, change-surface coverage), not just pass the visible test.",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "author": {
     "name": "idpcom"
   },

@@ -32,3 +32,5 @@ Next action:
 ```
 
 If a command cannot run, report the exact blocker and the best next command for the user.
+
+On failure, paste only the first failing line or assertion, not the full stack trace or full stdout, unless the user needs it to debug directly.

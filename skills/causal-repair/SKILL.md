@@ -34,6 +34,18 @@ Use `$ARGUMENTS` as the user's repair request. It may contain:
 
 If the user gave a test command, run it before editing. If no command is given, inspect the project for the most relevant test or reproduction path.
 
+## Keep the transcript lean
+
+The artifacts on disk — checkpoint, `.causal-repair/rca-gate.json`,
+`.causal-repair/contract-tests.py`, patch manifest — are the durable record,
+not the conversation. Report only the pass/fail result of a command and, on
+failure, the first failing line; do not paste full stdout, full diffs, or
+full file contents into the response when a one-line summary or a file path
+is enough. Read a file once and reuse what you learned instead of re-reading
+it "to be sure." This applies on both paths below and matters most on the
+escalation path, where several subagents each add a report to the same
+conversation.
+
 ## Two paths: fast by default, escalate on evidence
 
 The anti-workaround protection comes from the ARTIFACTS (checkpoint, contract
@@ -123,34 +135,19 @@ If the evidence cannot be captured, mark the RCA gate incomplete.
 
 ### 2. Investigate root cause before patching
 
-Use the bundled subagents when available:
-
-- `root-cause-investigator` for read-only investigation
-- `root-cause-judge` for gate approval
-- `workaround-reviewer` for post-patch review
-- `repair-verifier` for validation evidence
-
-For non-trivial failures, use at least two different investigation prompts or model routes when available. Diversity matters more than count. If every investigator uses the same model and evidence, treat agreement as weak evidence, not proof.
-
-Each investigation must produce:
-
-```text
-- exact failing symptom
-- execution path from test/input to failure
-- observed invariant, contract, or state transition that appears broken
-- whether the invariant is explicit, inferred, or unknown
-- documented contract clauses of the code under repair (from its
-  docstring/comments/spec), each marked broken, held, or at-risk —
-  including error contracts and edge cases the visible test does not touch
-- likely root-cause file/function
-- evidence from code or runtime output
-- counterfactual check that could falsify the hypothesis
-- minimal valid patch shape (minimal relative to the documented contract,
-  not relative to the visible test)
-- workaround patterns to reject
-```
-
-Enumerate only clauses the code actually documents — do not invent a contract. But enumerate ALL of them: the most common failure is a patch that satisfies the visible test while silently dropping a documented behavior (especially "invalid input must raise").
+Escalation only — the fast path above skips subagent fan-out. Spawn
+`root-cause-investigator` (read-only) at least twice with diverse prompts or
+model routes when available, then `root-cause-judge` to approve one
+hypothesis. Diversity matters more than count: if every investigator uses the
+same model and evidence, treat agreement as weak evidence, not proof. Each
+subagent already carries its own required-output format and rules (see
+`agents/root-cause-investigator.md`, `agents/root-cause-judge.md`) — you do
+not need to restate them. Enumerate only contract clauses the code actually
+documents, but enumerate ALL of them: the most common failure is a patch that
+satisfies the visible test while silently dropping a documented behavior
+(especially "invalid input must raise"). Full investigation template and
+synthesis rules, if you need them written out: see
+`${CLAUDE_SKILL_DIR}/../../resources/escalation-protocol.md`.
 
 ### 3. Apply the RCA gate and write rca-gate.json
 
@@ -325,38 +322,27 @@ If validation could not be run, say exactly why and what command the user should
 
 ## Long-horizon protocol (Ledger-Relay)
 
-Long problems are not solved with long contexts. When the repair spans multiple files, needs several dependent fixes, or you notice context drift (forgetting the goal, re-investigating settled questions), switch to the ledger:
-
-1. **Initialize** `.causal-repair/ledger.json` (allowed by the hook) with the goal, the enumerated contract clauses, and a plan of segments. Validate it:
+Long problems are not solved with long contexts. When the repair spans
+multiple files, needs several dependent fixes, or you notice context drift
+(forgetting the goal, re-investigating settled questions), switch to the
+ledger: externalize state to `.causal-repair/ledger.json` instead of carrying
+it in conversation memory, segment the work into pieces small enough for one
+focused subagent run each (≤ 8 turns, a mechanically checkable
+`done_criteria`, never "looks correct"), and relay one segment at a time to a
+fresh subagent whose entire prompt is the ledger contents plus the segment
+objective. Validate the ledger with:
 
 ```bash
 python scripts/validate-ledger.py .causal-repair/ledger.json
 ```
 
-Each segment must be small enough to finish in one focused subagent run (≤ 8 turns) and must have a `done_criteria` that is a runnable command or mechanically checkable condition — never "looks correct".
-
-```json
-{
-  "goal": "one-sentence repair goal",
-  "segments": [
-    {"id": "s1-investigate", "kind": "investigate", "objective": "...",
-     "done_criteria": "command", "status": "pending"},
-    {"id": "s2-rca", "kind": "rca", "objective": "...", "done_criteria": "python scripts/validate-rca-gate.py .causal-repair/rca-gate.json", "status": "pending"},
-    {"id": "s3-contract-tests", "kind": "contract-tests", "objective": "...", "done_criteria": "python .causal-repair/contract-tests.py exits non-zero on the buggy code", "status": "pending"},
-    {"id": "s4-patch", "kind": "patch", "objective": "...", "done_criteria": "python .causal-repair/contract-tests.py", "status": "pending"},
-    {"id": "s5-review", "kind": "review", "objective": "...", "done_criteria": "reviewer verdict recorded", "status": "pending"},
-    {"id": "s6-verify", "kind": "verify", "objective": "...", "done_criteria": "original + contract + adjacent tests pass", "status": "pending"}
-  ],
-  "attempts": 0,
-  "stop_condition": "two rounds without new evidence"
-}
-```
-
-2. **Relay**: run exactly one segment at a time. Mark it `in_progress`, delegate it to a fresh subagent whose prompt contains only the ledger contents and the segment objective (never rely on conversation memory as the handoff), check its `done_criteria` mechanically, record `evidence`, mark `done`, then move on. When hook enforcement is installed, production edits are blocked unless the active segment has `kind: "patch"`.
-
-3. **Failure**: mark the segment `failed`, revert with the patch manifest if code changed, record what was learned in `evidence`, increment `attempts`, and re-plan the remaining segments. After two attempts without new evidence, stop and report per the stop conditions.
-
-The ledger is the single source of truth. Any subagent that disagrees with the ledger re-reads the repository evidence instead of trusting its own recollection.
+When hook enforcement is installed, production edits are blocked unless the
+active segment has `kind: "patch"`. The ledger is the single source of truth
+— any subagent that disagrees with it re-reads the repository evidence
+instead of trusting its own recollection. The full segment schema, the
+JSON template, and the failure/replan protocol are in
+`${CLAUDE_SKILL_DIR}/../../resources/escalation-protocol.md` — load that file
+only once you actually decide to initialize a ledger.
 
 ## Dynamic workflow option
 

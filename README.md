@@ -170,6 +170,7 @@ causal-repair/
 ├── fixtures/
 │   └── python-null-profile/
 ├── resources/
+│   ├── escalation-protocol.md
 │   └── workflow-template.md
 ├── scripts/
 │   ├── create-checkpoint.sh
@@ -428,6 +429,11 @@ resources/workflow-template.md
 ```
 
 The template is intentionally stored as reference material rather than an auto-running script. It tells Claude Code how to fan out investigators, gate patching, run review, and stop after repeated non-progress.
+
+The full multi-agent investigation template and the Ledger-Relay segment
+schema live the same way in `resources/escalation-protocol.md` — the skill
+only summarizes them inline and loads the file when it actually escalates, so
+ordinary (fast-path) repairs never pull in escalation-only detail.
 
 ## Safety and limitations
 

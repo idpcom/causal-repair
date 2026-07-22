@@ -37,3 +37,4 @@ Required flow:
 9. Run the original failing test, the contract tests, and adjacent tests.
 10. Never use `git reset --hard` in a dirty user worktree.
 11. Final report must include Base commit, Checkpoint, Root cause, Causal path, Contract/invariant status, Contract clauses (each restored/held/NOT COVERED), Counterfactual check, Fix, Why this is not a workaround, Why this is not under-fit, Rejected alternatives, Validation, and Remaining risk.
+12. Keep the transcript lean: the on-disk artifacts are the record, so report pass/fail and the first failing line rather than pasting full diffs or full stdout.

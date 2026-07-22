@@ -34,3 +34,5 @@ Write `.causal-repair/contract-tests.py` covering every clause (negative case pe
 Reject symptom-only conditionals, broad fallback/default masking, broad try/catch, sleeps/retries, test-specific behavior — and under-fit patches that leave a documented clause (especially error contracts) unimplemented.
 
 Finish only after the original failing test, the contract tests, and adjacent tests pass, or report exactly why validation is incomplete.
+
+Keep the transcript lean: report pass/fail and the first failing line rather than pasting full diffs or full stdout — the on-disk artifacts are the record.

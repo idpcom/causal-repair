@@ -49,3 +49,5 @@ Safe revert target:
 ```
 
 If rejecting, state the exact files or hunks that should be reverted. Never recommend `git reset --hard` in a dirty user worktree.
+
+Quote only the specific diff hunks relevant to your verdict, not the full diff.

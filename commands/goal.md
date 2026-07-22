@@ -19,3 +19,5 @@ Continue until all completion criteria are met:
 6. The final report includes Root cause, Causal path, Fix, Why this is not a workaround, Rejected alternatives, Validation, and Remaining risk.
 
 Stop after 12 turns or two rounds with no new root-cause evidence.
+
+Keep the transcript lean: report pass/fail and the first failing line rather than pasting full diffs or full stdout — the on-disk artifacts are the record.

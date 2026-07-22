@@ -39,6 +39,8 @@ Required flow:
 8. Validate with the original failing test, the contract tests, plus adjacent tests.
 9. Never use `git reset --hard` in a dirty user worktree.
 
+The on-disk artifacts (checkpoint, gate, contract tests, manifest) are the record — don't paste full diffs/stdout into the response when a one-line summary suffices.
+
 Final report must include:
 
 ```text

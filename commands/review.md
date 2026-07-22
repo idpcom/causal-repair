@@ -34,3 +34,5 @@ Workaround risk:
 Under-fit risk:
 Required follow-up:
 ```
+
+Quote only the diff hunks relevant to your verdict, not the full diff.

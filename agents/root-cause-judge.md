@@ -54,3 +54,4 @@ Checkpoint/base commit:
 - Reject patches that would satisfy only the visible test.
 - Reject an RCA whose contract-clause list ignores documented behavior of the touched code — especially documented error behavior (e.g. "invalid input must raise"). A clause list containing only what the visible test checks is the under-fit failure mode this gate exists to stop.
 - Reject validation plans that run only the visible reproduction. Require authored contract tests exercising every enumerated clause, with at least one negative case per error contract.
+- Keep the report compact: summarize evidence and disagreements, don't requote full investigator reports verbatim.

@@ -42,6 +42,8 @@ RCA Gate
 
 Write `.causal-repair/contract-tests.py` covering every clause (negative case per error contract) before patching. Patch minimally against the documented contract, review the diff for workaround patterns AND unimplemented documented clauses, and validate with the original failing test, the contract tests, plus adjacent tests.
 
+Keep the transcript lean: the files on disk are the record, so report pass/fail and the first failing line rather than pasting full diffs or full stdout.
+
 Final report:
 
 ```text

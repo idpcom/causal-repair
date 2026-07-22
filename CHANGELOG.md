@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.4.4
+
+Context-footprint pass: the harness improves outcomes but was loading far more
+context per repair than needed, especially on the (now-default) fast path.
+This release trims what gets loaded and narrated without changing any gate,
+schema, or decision rule — a pure context-reduction pass, not a behavior
+change.
+
+- `skills/causal-repair/SKILL.md`: added a "keep the transcript lean"
+  instruction (report pass/fail + first failing line, not full
+  diffs/stdout/file dumps — the on-disk artifacts are the record). Compressed
+  the multi-agent investigation section and the Ledger-Relay section to a
+  short trigger + pointer; the full instructions moved, unchanged, to the new
+  `resources/escalation-protocol.md` (same lazy-load pattern already used by
+  `resources/workflow-template.md`) so the fast path — the default for most
+  repairs — no longer loads escalation-only detail it never uses.
+- Alias skills/commands (`cr`, `fix`, `goal`, `review`) got the same
+  lean-transcript one-liner for consistency.
+- The four subagents (`root-cause-investigator`, `root-cause-judge`,
+  `workaround-reviewer`, `repair-verifier`) each got one added rule bounding
+  their own report to short excerpts/first-failure-lines instead of full
+  dumps — this is where multi-agent escalation previously multiplied context
+  the most (2+ investigators + judge + reviewer + verifier reports stacking
+  in one conversation).
+- No change to REQUIRED_FIELDS, validators, hook enforcement, or any approval
+  criterion; `fixtures/python-null-profile` behavior is unaffected.
+
 ## 0.4.3
 
 Field deployments showed the always-on full workflow REGRESSES below baseline

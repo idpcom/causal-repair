@@ -39,3 +39,4 @@ Missing evidence:
 - Propose a counterfactual check that could falsify your hypothesis.
 - Do not recommend broad catch blocks, fallback defaults, sleeps, retries, or test-specific conditionals unless you can explain the contract they restore.
 - Do not suggest editing tests unless the test is demonstrably inconsistent with documented behavior.
+- Keep the report itself compact: quote short excerpts (a few lines) as evidence, not full file dumps — the file is still on disk if the judge needs more.
